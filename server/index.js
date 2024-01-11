@@ -157,6 +157,7 @@ app.get('/api/get-subjects', verifyToken, async (req, res) => {
       const subjects = await SubjectModel.find({ std: req.user.std });
   
       // Extract only the 'name' array from each subject
+      console.log(subjects)
       const subjectNames = subjects.map(subject => subject.name);
         console.log(subjectNames);
       res.json({ subjectNames });

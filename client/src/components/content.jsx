@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 
 const Content = () => {
   const location = useLocation();
@@ -10,10 +9,10 @@ const Content = () => {
   const [username, setUsername] = useState("");
   const [std, setStd] = useState("");
   const [subjects, setSubjects] = useState([]);
-  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [expandedIndex, setExpandedIndex] = useState(null);
 
-  const handleDivClick = (index) => {
-    setSelectedSubject(index === selectedSubject ? null : index);
+  const handleToggle = (index) => {
+    setExpandedIndex((prevIndex) => (prevIndex === index ? null : index));
   };
 
   useEffect(() => {
@@ -87,26 +86,29 @@ const Content = () => {
 
 
   return (
-    <div className="flex">
-      {subjects.map((subject, index) => (
-        <div
-          key={index}
-          className={`p-4 m-2 rounded-md cursor-pointer transition-transform transform ${
-            selectedSubject === index ? 'scale-150' : 'scale-100'
-          } bg-${index % 5 + 1}00`}
-          onClick={() => handleDivClick(index)}
-        >
-          <span className="text-xl">{subject}</span>
-          {selectedSubject === index && (
-            <img
-              src="/path/to/logo.png" // Replace with the actual path to your logo
-              alt="Logo"
-              className="h-8 w-8 ml-2"
-            />
-          )}
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="flex flex-row m-20 align-center">
+        {subjects.map((subject, index) => (
+          <div
+            key={index}
+            className={` m-4 pr-10 pl-10 bg-gray-300 cursor-pointer ${expandedIndex === index ? 'h-auto' : 'h-32 w-32'} transition-all duration-500 ease-in-out rounded-md `}
+            onClick={() => handleToggle(index)}
+          >
+            {subject}
+            {expandedIndex === index && (
+              <div className="mt-2">
+                {subjects.map((subSubject, i) => (
+                  <Link key={i} to={`/dashboard/content/${subject}/${subSubject}`} className="block p-4 mb-2 rounded-md text-white">
+                    {subSubject}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </>
+
   );
 };
 

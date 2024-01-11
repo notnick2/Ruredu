@@ -15,6 +15,7 @@ import Logout from './components/logout';
 import Profile from './components/profile';
 import Tasks from './components/tasks';
 import Admin from './components/admin';
+import Topic from './components/topic';
 
 
 
@@ -61,6 +62,10 @@ const router = createBrowserRouter([
     {
       path: "/dashboard/logout",
       element: <Logout/>,
+    },
+    {
+      path: "/dashboard/content/:subject/:unit",
+      element: <Topic/>
     }
   ],
 },
