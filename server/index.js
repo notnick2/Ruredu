@@ -44,29 +44,6 @@ const UnitSchema = new mongoose.Schema({
 });
 const UnitModel = new mongoose.model('Unit', UnitSchema);
 
-
-//Topic Model
-const TopicSchema = new mongoose.Schema({
-    unit: String,
-    topic: Array,
-})
-const TopicModel = mongoose.model('Topic', TopicSchema);
-
-//Note Model
-const NoteSchema = new mongoose.Schema({
-    unit: String,
-    topic:String,
-    note:Array,
-});
-const NoteModel = mongoose.model('Note', NoteSchema);
-
-//Video Model
-const VideoSchema = new mongoose.Schema({
-    unit: String,
-    topic: String,
-    video: Array,
-});
-const VideoModel = mongoose.model('Video', VideoSchema);
 // Secret key for JWT
 const secretKey = 'hackingmeisimpossible'; // Replace with a strong, secret key
 
@@ -155,26 +132,40 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// API endpoint to fetch subjects based on user's class
-app.get('/api/subjects',verifyToken, async (req, res) => {
-    
+
+//API endpoint to fetch the user's access
+
+app.get('/api/get-access', verifyToken, async (req, res) => {
+    // Access information, student name, and std are available in req.user
     try {
-        const userClass = req.user.std;
-
-        // Fetch subjects for the user's class from the MongoDB collection
-        const subjects = await SubjectModel.findOne({ std: userClass });
-
-        if (!subjects) {
-            return res.status(404).json({ message: 'Subjects not found for the given class' });
-        }
-
-        res.json(subjects.name);
+      res.json({
+        access: req.user.access,
+        studentName: req.user.studentName,
+        std: req.user.std,
+      });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal Server Error' });
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
     }
-});
+  });
+  
 
+
+// API endpoint to fetch subjects based on user's class
+app.get('/api/get-subjects', verifyToken, async (req, res) => {
+    try {
+      const subjects = await SubjectModel.find({ std: req.user.std });
+  
+      // Extract only the 'name' array from each subject
+      const subjectNames = subjects.map(subject => subject.name);
+        console.log(subjectNames);
+      res.json({ subjectNames });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  });
+  
 
 //API endpoint to fetch units based on subject
 

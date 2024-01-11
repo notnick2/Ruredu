@@ -14,7 +14,7 @@ import Home from './components/home';
 import Logout from './components/logout';
 import Profile from './components/profile';
 import Tasks from './components/tasks';
-
+import Admin from './components/admin';
 
 
 
@@ -39,7 +39,7 @@ const router = createBrowserRouter([
   
   children: [
     {
-      path: "dashboard/home",
+      path: "/dashboard/home",
       element: <Home/>,
     },
     {
@@ -53,6 +53,10 @@ const router = createBrowserRouter([
     {
       path: "/dashboard/profile",
       element: <Profile/>,
+    },
+    {
+      path: "/dashboard/admin",
+      element: <Admin/>
     },
     {
       path: "/dashboard/logout",

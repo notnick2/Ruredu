@@ -27,11 +27,13 @@ function Login() {
       // Assuming the server returns a JWT token upon successful login
       const { token } = response.data;
 
+      
+
       // Store the token in localStorage or a global state management solution
       localStorage.setItem('token', token);
 
       // Redirect to the dashboard page
-      navigate('/dashboard');
+      navigate('/dashboard/home');
     } catch (error) {
       console.error('Login failed', error);
       setLoginError('Invalid credentials. Please try again.');
