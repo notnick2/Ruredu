@@ -27,22 +27,28 @@ const UserSchema = new mongoose.Schema({
 
 const UserModel = mongoose.model('User', UserSchema);
 
-// Subject Model
-const SubjectSchema = new mongoose.Schema({
-    std: Number,
-    name: Array,
-    // Add other subject-related fields
+const TopicSchema = new mongoose.Schema({
+  topic_name: String,
+  topic_description: String,
 });
+
+const UnitSchema = new mongoose.Schema({
+  unit_name: String,
+  topics: [TopicSchema],
+});
+
+const SubjectSchema = new mongoose.Schema({
+  std: Number,
+  name: [
+    {
+      subject_name: String,
+      units: [UnitSchema],
+    },
+  ],
+});
+
 
 const SubjectModel = mongoose.model('Subject', SubjectSchema);
-
-
-//Unit Model
-const UnitSchema = new mongoose.Schema({
-    subject: String,
-    unit: Array,
-});
-const UnitModel = new mongoose.model('Unit', UnitSchema);
 
 // Secret key for JWT
 const secretKey = 'hackingmeisimpossible'; // Replace with a strong, secret key
@@ -158,9 +164,9 @@ app.get('/api/get-subjects', verifyToken, async (req, res) => {
   
       // Extract only the 'name' array from each subject
       console.log(subjects)
-      const subjectNames = subjects.map(subject => subject.name);
-        console.log(subjectNames);
-      res.json({ subjectNames });
+      //const subjectNames = subjects.map(subject => subject.name);
+       // console.log(subjectNames);
+      res.json({ subjects });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Internal Server Error' });
@@ -168,80 +174,115 @@ app.get('/api/get-subjects', verifyToken, async (req, res) => {
   });
   
 
-//API endpoint to fetch units based on subject
+// Endpoint to get topics based on subject and unit
+app.get('/api/get-topics/:subject/:unit', verifyToken, async (req, res) => {
+  const { subject, unit } = req.params;
 
-app.get('/api/units/:subject', verifyToken, async (req, res) => {
-    try {
-      
-      const subject = req.params.subject;
-  
-      // Fetch units for the user's class and the selected subject
-      const units = await UnitModel.findOne({ subject }, { _id: 0, unit: 1 });
-      
-      res.json(units.unit);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal Server Error' });
+  try {
+    // Find the subject in the database
+    const selectedSubject = await SubjectModel.findOne({
+      'name.subject_name': subject,
+      'name.units.unit_name': unit,
+    });
+
+    if (!selectedSubject) {
+      return res.status(404).json({ message: 'Subject or unit not found' });
     }
-  });
 
-
-// API endpoint to fetch topics for a specific subject and unit
-app.get('/api/topics/:subject/:unit', verifyToken, async (req, res) => {
-    try {
-      const unit = req.params.unit;
-      const result = await TopicModel.findOne({ unit }, { _id: 0 , topic: 1 });
-      res.json(result.topic);
-      
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-
-
-//API endpoint to fetch notes for specific unit and topic
-app.get('/api/notes/:unit/:topic', verifyToken, async (req, res) => {
-    try {
-      const { unit, topic } = req.params;
-      // Query MongoDB to get notes based on unit and topic
-      const note = await NoteModel.find({ unit, topic });
-      const extractedObject = note[0];
-      console.log(extractedObject);
-      console.log(extractedObject.note);
-      res.json(extractedObject.note);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-
-//API endpoint to fetch videos for specific unit and topic
-app.get('/api/videos/:unit/:topic', verifyToken, async (req, res) => {
-    try {
-      const { unit, topic } = req.params;
-      // Query MongoDB to get notes based on unit and topic
-      const video = await NoteModel.find({ unit, topic });
-      const extractedObject = video[0];
-      console.log(extractedObject);
-      console.log(extractedObject.note);
-      res.json(extractedObject.note);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-
-
-// Protected API endpoint (Learn)
-app.get('/api/learn', verifyToken, (req, res) => {
-    res.json({ message: 'Welcome to the Learn page!' });
-  });
-
-// Protected API endpoint (Dashboard)
-app.get('/api/dashboard', verifyToken, (req, res) => {
-    res.json({ message: 'Welcome to the dashboard!' });
+    // Extract and send the topics
+    const topics = selectedSubject.name.find(sub => sub.subject_name === subject)
+      .units.find(u => u.unit_name === unit).topics;
+    res.json({ topics });
+  } catch (error) {
+    console.error('Error fetching topics', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
+
+
+//getting details for a specified class to add by the admin
+
+app.get('/api/get-class-details', verifyToken, async (req, res) => {
+  try {
+    const { std } = req.query;
+
+    // Validate input (you can add more validation as needed)
+
+    // Fetch subjects based on the selected class (std)
+    const subjects = await SubjectModel.find({ std });
+
+    res.json({ success: true, subjects });
+  } catch (error) {
+    console.error('Error fetching subjects', error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+});
+
+
+
+//adding data into the database
+
+app.post('/api/add-subject', verifyToken, async (req, res) => {
+  try {
+    const { std, subject } = req.body;
+
+    // Validate input (you can add more validation as needed)
+
+    // Add the new subject to the database
+    const updatedData = await SubjectModel.findOneAndUpdate(
+      { std },
+      { $addToSet: { 'name': { subject_name: subject, units: [] } } },
+      { new: true }
+    );
+
+    res.json({ success: true, data: updatedData });
+  } catch (error) {
+    console.error('Error adding subject', error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+});
+
+app.post('/api/add-unit', verifyToken, async (req, res) => {
+  try {
+    const { std, subject, unit } = req.body;
+
+    // Validate input (you can add more validation as needed)
+
+    // Add the new unit to the database
+    const updatedData = await SubjectModel.findOneAndUpdate(
+      { std, 'name.subject_name': subject },
+      { $addToSet: { 'name.$.units': { unit_name: unit, topics: [] } } },
+      { new: true }
+    );
+
+    res.json({ success: true, data: updatedData });
+  } catch (error) {
+    console.error('Error adding unit', error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+});
+
+app.post('/api/add-topic', verifyToken, async (req, res) => {
+  try {
+    const { std, subject, unit, topic } = req.body;
+
+    // Validate input (you can add more validation as needed)
+
+    // Add the new topic to the database
+    const updatedData = await SubjectModel.findOneAndUpdate(
+      { std, 'name.subject_name': subject, 'name.units.unit_name': unit },
+      { $addToSet: { 'name.$.units.$[u].topics': { topic_name: topic } } },
+      { arrayFilters: [{ 'u.unit_name': unit }], new: true }
+    );
+
+    res.json({ success: true, data: updatedData });
+  } catch (error) {
+    console.error('Error adding topic', error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+});
+
+
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
@@ -250,6 +291,10 @@ app.listen(port, () => {
 
 
 
-app.get('/api/test', (req,res) => {
-    res.json({message: 'jesting'});
-})
+
+
+
+
+
+
+

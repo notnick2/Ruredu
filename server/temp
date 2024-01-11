@@ -1,0 +1,16 @@
+// Subject Model
+const SubjectSchema = new mongoose.Schema({
+    std: Number,
+    name: Array,
+    // Add other subject-related fields
+});
+
+const SubjectModel = mongoose.model('Subject', SubjectSchema);
+
+
+//Unit Model
+const UnitSchema = new mongoose.Schema({
+    subject: String,
+    unit: Array,
+});
+const UnitModel = new mongoose.model('Unit', UnitSchema);

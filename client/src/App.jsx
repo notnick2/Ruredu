@@ -11,7 +11,6 @@ import Login from './pages/login';
 import Dashboard from './pages/dashboard';
 import Content from './components/content';
 import Home from './components/home';
-import Logout from './components/logout';
 import Profile from './components/profile';
 import Tasks from './components/tasks';
 import Admin from './components/admin';
@@ -59,10 +58,7 @@ const router = createBrowserRouter([
       path: "/dashboard/admin",
       element: <Admin/>
     },
-    {
-      path: "/dashboard/logout",
-      element: <Logout/>,
-    },
+    
     {
       path: "/dashboard/content/:subject/:unit",
       element: <Topic/>

@@ -4,17 +4,12 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 const Content = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [username, setUsername] = useState("");
-  const [std, setStd] = useState("");
-  const [subjects, setSubjects] = useState([]);
-  const [expandedIndex, setExpandedIndex] = useState(null);
-
-  const handleToggle = (index) => {
-    setExpandedIndex((prevIndex) => (prevIndex === index ? null : index));
-  };
-
+  
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [subjectNames, setSubjectNames] = useState([]);
+  const [unitNames, setUnitNames] = useState([]);
+  const [topicNames, setTopicNames] = useState([]);
   useEffect(() => {
     const checkTokenAndFetchAccess = async () => {
       try {
@@ -72,8 +67,16 @@ const Content = () => {
         });
 
         if (subjectsResponse.ok) {
-          const subjectsData = await subjectsResponse.json();
-          setSubjects(subjectsData.subjectNames[0]);
+          const data = await subjectsResponse.json();
+          const subjects = data.subjects;
+          const Subject = subjects.map(subject => subject.name.map(sub => sub.subject_name)).flat();
+          const Unit = subjects.map(subject => subject.name.flatMap(unit => unit.units.map(u => u.unit_name))).flat();
+          const Topic = subjects.map(subject => subject.name.flatMap(unit => unit.units.flatMap(t => t.topics.map(topic => topic.topic_name)))).flat();
+        
+          setSubjectNames(Subject);
+          setUnitNames(Unit)
+          setTopicNames(Topic)
+        
         } else {
           console.error('Error fetching subjects');
         }
@@ -84,29 +87,48 @@ const Content = () => {
     fetchSubjects();
   }, []);
 
+  useEffect(() => {
+    // Log state values after they are updated
+    console.log('Subject Names:', subjectNames);
+    console.log('Unit Names:', unitNames);
+    console.log('Topic Names:', topicNames);
+  }, [subjectNames, unitNames, topicNames]);
+
+  const handleSubjectClick = (subject) => {
+    setIsExpanded(!isExpanded);
+    setSelectedSubject(subject);
+  };
 
   return (
     <>
-      <div className="flex flex-row m-20 align-center">
-        {subjects.map((subject, index) => (
+      <div className="container mx-auto mt-8">
+      <h1 className="text-3xl font-bold mb-4">Subjects</h1>
+      <div className="grid grid-cols-3 gap-4">
+        {subjectNames.map((subject, index) => (
           <div
             key={index}
-            className={` m-4 pr-10 pl-10 bg-gray-300 cursor-pointer ${expandedIndex === index ? 'h-auto' : 'h-32 w-32'} transition-all duration-500 ease-in-out rounded-md `}
-            onClick={() => handleToggle(index)}
+            className={`bg-blue-200 p-4 rounded cursor-pointer transition-all ${
+              isExpanded && selectedSubject === subject ? 'col-span-3' : 'col-span-1'
+            }`}
+            onClick={() => handleSubjectClick(subject)}
           >
-            {subject}
-            {expandedIndex === index && (
-              <div className="mt-2">
-                {subjects.map((subSubject, i) => (
-                  <Link key={i} to={`/dashboard/content/${subject}/${subSubject}`} className="block p-4 mb-2 rounded-md text-white">
-                    {subSubject}
-                  </Link>
-                ))}
+            <h2 className="text-xl font-bold mb-2">{subject}</h2>
+            {isExpanded && selectedSubject === subject && (
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Unit Names:</h3>
+                <ul>
+                  {unitNames.map((unit, unitIndex) => (
+                    <li key={unitIndex} className="mb-2">
+                      <a href={`/dashboard/content/${subject}/${unit}`} className="text-blue-500 hover:underline">{unit}</a>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
           </div>
         ))}
       </div>
+    </div>
     </>
 
   );

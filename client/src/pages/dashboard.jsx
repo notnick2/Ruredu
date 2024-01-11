@@ -64,41 +64,7 @@ useEffect(() => {
   
 }, [navigate]);
 
-useEffect(()=>
-{
-  const fetchSubjects = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        // Redirect to / if there is no token
-        navigate('/');
-        return;
-      }
-      // Send a request to the backend to fetch subjects
-      const subjectsResponse = await fetch('http://localhost:5000/api/get-subjects', {
-        method: 'GET',
-        headers: {
-          Authorization: token,
-          'Content-Type': 'application/json',
-        },
-      });
 
-      if (subjectsResponse.ok) {
-        const subjectsData = await subjectsResponse.json();
-        
-        setSubjects(subjectsData.subjectNames)
-        
-        
-      } else {
-        
-        console.error('Error fetching subjects');
-      }
-    } catch (error) {
-      console.error('Error fetching subjects', error);
-    }
-  };
-  fetchSubjects();
-},[]);
 
 
 console.log(subjects);
@@ -128,7 +94,7 @@ console.log(subjects);
           <Link
             to="/dashboard/content"
             className={`flex items-center space-x-2 text-3xl ${
-              location.pathname === '/dashboard/content' ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
+              location.pathname === '/dashboard/content' || location.pathname.startsWith('/dashboard/content/') ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
             }`}
           >
             <img src={content} className="w-6 h-6" alt="Tasks Icon" />
