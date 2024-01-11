@@ -1,13 +1,22 @@
 import React from 'react';
 import {
   createBrowserRouter,
+  
   RouterProvider,
+  
 } from "react-router-dom";
-import Landing from './pages.jsx/landing';
-import Register from './pages.jsx/register';
-import Login from './pages.jsx/login';
-import Dashboard from './pages.jsx/dashboard';
-import Sidebar from './components/sidebar';
+import Landing from './pages/landing';
+import Register from './pages/register';
+import Login from './pages/login';
+import Dashboard from './pages/dashboard';
+import Content from './components/content';
+import Home from './components/home';
+import Logout from './components/logout';
+import Profile from './components/profile';
+import Tasks from './components/tasks';
+
+
+
 
 const router = createBrowserRouter([
   {
@@ -27,19 +36,37 @@ const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: <Dashboard/>,
-    children: [
-      {
-        path: "/dashboard",
-        element: <Sidebar/>,
-      }
-    ]
-  }
+  
+  children: [
+    {
+      path: "dashboard/home",
+      element: <Home/>,
+    },
+    {
+      path: "/dashboard/content",
+      element: <Content/>,
+    },
+    {
+      path: "/dashboard/tasks",
+      element: <Tasks/>,
+    },
+    {
+      path: "/dashboard/profile",
+      element: <Profile/>,
+    },
+    {
+      path: "/dashboard/logout",
+      element: <Logout/>,
+    }
+  ],
+},
   
 ]);
 
 const App = () => {
   return (
-    <RouterProvider router={router} />
+    <RouterProvider router={router}/>
+    
   );
 };
 
