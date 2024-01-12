@@ -22,6 +22,12 @@ const Content = () => {
   const [topicDescription, setTopicDescription] = useState([]);
   const [add, setAdd] = useState(false);
   const [file, setFile] = useState(null);
+  const [finalTopicDescription, setFinalTopicDescription] = useState("");
+  const [successS, setSuccessS] = useState('');
+  const [successU, setSuccessU] = useState('');
+  const [successT, setSuccessT] = useState('');
+  const [successD, setSuccessD] = useState('');
+  const [successUpload, setSuccessUpload] = useState('');
 
   useEffect(() => {
     const checkTokenAndFetchAccess = async () => {
@@ -104,19 +110,9 @@ const Content = () => {
     setAdd(false);
   }, [std, navigate, add]);
 
-  useEffect(() => {
-    // Log state values after they are updated
-    console.log('Subject Names:', subjectNames);
-    console.log('Unit Names:', unitNames);
-    console.log('Topic Names:', topicNames);
-    console.log('student class:', std);
-  }, [subjectNames, unitNames, topicNames, std]);
+ 
 
-  const handleAddStd = () => {
-    // Handle adding a new class to the backend
-    console.log('Adding new class:', newStd);
-    setNewStd('');
-  };
+
 
   const handleAddSubject = async () => {
     try {
@@ -142,6 +138,7 @@ const Content = () => {
 
       if (response.ok) {
         console.log('Subject added successfully!');
+        setSuccessS(`${newSubject} added successfully!`);
         // Refetch subjects to update the dropdown
         
       } else {
@@ -177,6 +174,7 @@ const Content = () => {
 
       if (response.ok) {
         console.log('Unit added successfully!');
+        setSuccessU(`${newUnit} added successfully!`);
         // Refetch units to update the dropdown
         
       } else {
@@ -213,6 +211,7 @@ const Content = () => {
 
       if (response.ok) {
         console.log('Topic added successfully!');
+        setSuccessT(`${newTopic} added successfully!`);
         // Refetch topics to update the dropdown
         
       } else {
@@ -252,6 +251,7 @@ const Content = () => {
 
       if (response.ok) {
         console.log('Topic description added successfully!',topicDescription);
+        setSuccessD(`${topicDescription} added successfully!`);
         // Refetch topics to update the dropdown
         
       } else {
@@ -281,6 +281,7 @@ const handleFileUpload = async () => {
   try {
     await axios.post('http://localhost:5000/api/upload', formData);
     console.log('File uploaded successfully');
+    setSuccessUpload('File uploaded successfully');
   } catch (error) {
     console.error('Error uploading file:', error);
   }
@@ -289,7 +290,7 @@ const handleFileUpload = async () => {
 return (
   <div className="h-825  flex flex-col flex-wrap gap-4 ml-8">
     <div className="mb-4">
-      <h2 className="text-lg font-semibold">Select or Add Class:</h2>
+      <h2 className="text-lg font-semibold">Select Class:</h2>
       <p className="mb-2">Selected Class: {std}</p>
       <select className="mr-2 p-2 border border-gray-300 rounded" onChange={(e) => setStd(e.target.value)} value={std}>
         <option value="">Select Class</option>
@@ -330,6 +331,7 @@ return (
           >
             Add Subject
           </button>
+          {successS && <p className="text-green-500">{successS}</p>}
         </div>
 
         <div className="mb-4">
@@ -359,6 +361,7 @@ return (
           >
             Add Unit
           </button>
+          {successU && <p className="text-green-500">{successU}</p>}
         </div>
 
         <div className="mb-4">
@@ -388,6 +391,7 @@ return (
           >
             Add Topic
           </button>
+          {successT && <p className="text-green-500">{successT}</p>}
         </div>
 
         <div className="mb-4">
@@ -403,12 +407,13 @@ return (
             onClick={() => {
               handleAddTopicDescription();
               setAdd(true);
+              setFinalTopicDescription(topicDescription);
             }}
             className="p-2 bg-blue-500 text-white rounded"
           >
             Add Topic Description
           </button>
-          <p className="mt-2">{topicDescription}</p>
+          {successD && <p className="text-green-500">{successD}</p>}
         </div>
 
         <div className="mb-4">
@@ -417,6 +422,7 @@ return (
           <button onClick={handleFileUpload} className="p-2 bg-blue-500 text-white rounded">
             Upload PDF
           </button>
+          {successUpload && <p className="text-green-500">{successUpload}</p>}
         </div>
       </>
     )}

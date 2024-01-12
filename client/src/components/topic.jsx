@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const Topic = () => {
   const navigate = useNavigate();
   const { subject, unit } = useParams();
   const [topics, setTopics] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [topicName, setTopicName] = useState('');
+  const [topicDescription, setTopicDescription] = useState('');
+  const [pdfPath, setPdfPath] = useState('');
 
   useEffect(() => {
     const fetchTopics = async () => {
@@ -40,26 +43,76 @@ const Topic = () => {
     };
 
     fetchTopics();
-  }, [subject, unit]);
+  }, [subject, unit, navigate]);
+
+  const handleClick = async (topic) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/get-pdf', {
+        method: 'POST',
+        headers: {
+          Authorization: token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          topicName: topic.topic_name,
+          topicDescription: topic.topic_description,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setTopicName(topic.topic_name);
+        setTopicDescription(topic.topic_description);
+        setPdfPath(data.pdfPath); // Assuming the backend sends the PDF path in the response
+      } else {
+        console.error('Error fetching PDF');
+      }
+    } catch (error) {
+      console.error('Error handling click', error);
+    }
+  };
 
   return (
-    <div className="container mx-auto mt-8">
-      <h1 className="text-3xl font-bold mb-4">{`Topics for ${subject} - ${unit}`}</h1>
+    <div className="flex flex-col md:flex-row">
+    <div className="mx-auto md:flex-1 mt-8 p-8 bg-white   md:ml-4 md:mr-4">
+    <h1 className="mx-auto text-3xl font-bold mb-4 relative">{`Topics for ${subject} - ${unit}`}</h1>
+    <div className="mx-auto md:flex-1 mt-8 p-8 bg-white shadow-lg overflow-y-auto max-h-96 md:ml-4 md:mr-4">
+      
       {loading ? (
         <p>Loading...</p>
       ) : (
         <ul>
-  {topics.map((topic, index) => (
-    <li key={index} className="mb-2">
-      <Link to={`/${topic.topic_name}`}>
-        <strong>{topic.topic_name}</strong>: {topic.topic_description}
-      </Link>
-    </li>
-  ))}
-</ul>
-
+          {topics.map((topic, index) => (
+            <li key={index} className="mb-4">
+              <button
+                onClick={() => handleClick(topic)}
+                className="hover:bg-blue-200 focus:bg-blue-200 focus:outline-none p-2 rounded-lg text-lg transition-colors block w-full border border-blue-500"
+              >
+                <span className="font-bold text-xl">{topic.topic_name}</span><br />
+                <span className="text-sm">{topic.topic_description}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      </div>
+    </div>
+    <div className="flex-grow">
+      {pdfPath && (
+        <div className="mt-8 rounded-lg md:mt-0 mr-12 overflow-hidden">
+          <iframe src={`http://localhost:3000/${pdfPath}`} width="100%" height="800px" title="PDF Viewer" className="border border-blue-500"></iframe>
+        </div>
       )}
     </div>
+  </div>
+  
+
+  
+
+
+  
+
   );
 };
 

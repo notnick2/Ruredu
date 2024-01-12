@@ -8,6 +8,7 @@ import profile from '../assets/profile.svg';
 import tasks from '../assets/tasks.svg';
 import admin from '../assets/admin.svg';
 import user from '../assets/user.png';
+
 const Dashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -17,64 +18,48 @@ const Dashboard = () => {
   const [std, setStd] = useState("");
   const [subjects, setSubjects] = useState([]);
 
+  useEffect(() => {
+    const checkTokenAndFetchAccess = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          // Redirect to / if there is no token
+          navigate('/');
+          return;
+        }
 
+        // Send a request to the backend to fetch access information
+        const response = await fetch('http://localhost:5000/api/get-access', {
+          method: 'GET',
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json',
+          },
+        });
 
-useEffect(() => {
-  const checkTokenAndFetchAccess = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        // Redirect to / if there is no token
-        navigate('/');
-        return;
+        if (response.ok) {
+          const data = await response.json();
+          setIsAdmin(data.access);
+          setUsername(data.studentName);
+          setStd(data.std);
+        } else {
+          // Handle error fetching access information
+          console.error('Error fetching access information');
+        }
+      } catch (error) {
+        console.error('Error fetching access information', error);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      // Send a request to the backend to fetch access information
-      const response = await fetch('http://localhost:5000/api/get-access', {
-        method: 'GET',
-        headers: {
-          Authorization: token,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setIsAdmin(data.access);
-        setUsername(data.studentName);
-        setStd(data.std);
-        
-        
-
-        
-      } else {
-        // Handle error fetching access information
-        console.error('Error fetching access information');
-      }
-    } catch (error) {
-      console.error('Error fetching access information', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  
-
-  checkTokenAndFetchAccess();
-  
-}, [navigate]);
-
-
-
-
-console.log(subjects);
-
-
+    checkTokenAndFetchAccess();
+  }, [navigate]);
 
   return (
     <div className="grid grid-cols-12 grid-rows-12 h-screen">
       {/* Sidebar */}
-      <div className="col-span-2 row-span-12 bg-gray-100 p-4 flex flex-col items-center justify-between">
+      <div className="hidden md:flex col-span-2 row-span-12 bg-gray-100 p-4 flex-col items-center justify-between">
         <h1 className="font-poppins font-bold text-5xl text-slate-800 mb-4 pb-10">RUREDU</h1>
 
         {/* Sidebar Links */}
@@ -89,7 +74,7 @@ console.log(subjects);
             <img src={home} className="w-6 h-6" alt="home Icon" />
             <span>Home</span>
           </Link>
-          
+
           {/* Content Link */}
           <Link
             to="/dashboard/content"
@@ -132,7 +117,7 @@ console.log(subjects);
               }`}
             >
               <img src={admin} className="w-6 h-6" alt="Profile Icon" />
-            <span>Admin</span>
+              <span>Admin</span>
             </Link>
           )}
         </nav>
@@ -156,7 +141,9 @@ console.log(subjects);
         <img src={user} className="w-7 h-7" alt="User Avatar" />
         <h1 className="ml-2">{username}</h1>
       </nav>
-      <div className=" col-span-10 row-span-11">
+
+      {/* Main Content */}
+      <div className="col-span-10 row-span-11">
         <Outlet />
       </div>
     </div>

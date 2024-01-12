@@ -327,26 +327,50 @@ app.post('/api/add-topic-description', verifyToken, async (req, res) => {
 
     // Validate input (you can add more validation as needed)
 
-    // Update the new topic with the provided description
+    // Find the unit and its index within the array
+    const unitDocument = await SubjectModel.findOne({
+      std,
+      'name.subject_name': subject,
+      'name.units.unit_name': unit,
+    });
+
+    if (!unitDocument) {
+      throw new Error('Unit not found');
+    }
+
+    const unitIndex = unitDocument.name.findIndex(u => u.units.some(u => u.unit_name === unit));
+
+    // Update the topic_description for the specified topic
     const updatedData = await SubjectModel.findOneAndUpdate(
-      { std, 'name.subject_name': subject, 'name.units.unit_name': unit, 'name.units.topics.topic_name': { $ne: topic } },
       {
-        $addToSet: {
-          'name.$.units.$[u].topics': {
-            topic_name: topic,
-            topic_description: topic_description,
-          },
+        std,
+        'name.subject_name': subject,
+        'name.units.unit_name': unit,
+        'name.units.topics.topic_name': topic,
+      },
+      {
+        $set: {
+          [`name.${unitIndex}.units.$[u].topics.$[t].topic_description`]: topic_description,
         },
       },
-      { arrayFilters: [{ 'u.unit_name': unit }], new: true }
+      {
+        arrayFilters: [
+          { 'u.unit_name': unit },
+          { 't.topic_name': topic },
+        ],
+        new: true,
+      }
     );
 
     res.json({ success: true, data: updatedData });
   } catch (error) {
-    console.error('Error adding topic', error);
+    console.error('Error adding topic description', error);
     res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 });
+
+
+
 
 
 // handle pdf uploads....
@@ -421,6 +445,36 @@ app.post('/api/update-profile', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
+
+
+
+// send pdf to frontend
+
+app.post('/api/get-pdf', verifyToken, async (req, res) => {
+  try {
+    const { topicName, topicDescription } = req.body;
+
+    // Fetch the PDF path based on the provided topic information
+    const file = await File.findOne({
+      selectedTopic: topicName,
+      topicDescription,
+    });
+
+    if (!file) {
+      return res.status(404).json({ error: 'PDF not found' });
+    }
+
+    res.json({ pdfPath: file.pdfPath });
+    console.log(file.pdfPath);
+  } catch (error) {
+    console.error('Error fetching PDF', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+
+
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
