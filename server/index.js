@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const multer = require('multer');
+const path = require('path');
 
 const app = express();
 const port = 5000;
@@ -27,6 +29,8 @@ const UserSchema = new mongoose.Schema({
 
 const UserModel = mongoose.model('User', UserSchema);
 
+//class - subject - details schema
+
 const TopicSchema = new mongoose.Schema({
   topic_name: String,
   topic_description: String,
@@ -47,8 +51,41 @@ const SubjectSchema = new mongoose.Schema({
   ],
 });
 
-
 const SubjectModel = mongoose.model('Subject', SubjectSchema);
+
+
+const fileSchema = new mongoose.Schema({
+  std: {
+    type: String,
+    required: true,
+  },
+  selectedSubject: {
+    type: String,
+    required: true,
+  },
+  selectedUnit: {
+    type: String,
+    required: true,
+  },
+  selectedTopic: {
+    type: String,
+    required: true,
+  },
+  topicDescription: {
+    type: String,
+    required: true,
+  },
+  pdfPath: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+const File = mongoose.model('File', fileSchema);
 
 // Secret key for JWT
 const secretKey = 'hackingmeisimpossible'; // Replace with a strong, secret key
@@ -283,6 +320,107 @@ app.post('/api/add-topic', verifyToken, async (req, res) => {
 });
 
 
+app.post('/api/add-topic-description', verifyToken, async (req, res) => {
+  try {
+    const { std, subject, unit, topic, topic_description } = req.body;
+    console.log(topic_description);
+
+    // Validate input (you can add more validation as needed)
+
+    // Update the new topic with the provided description
+    const updatedData = await SubjectModel.findOneAndUpdate(
+      { std, 'name.subject_name': subject, 'name.units.unit_name': unit, 'name.units.topics.topic_name': { $ne: topic } },
+      {
+        $addToSet: {
+          'name.$.units.$[u].topics': {
+            topic_name: topic,
+            topic_description: topic_description,
+          },
+        },
+      },
+      { arrayFilters: [{ 'u.unit_name': unit }], new: true }
+    );
+
+    res.json({ success: true, data: updatedData });
+  } catch (error) {
+    console.error('Error adding topic', error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+});
+
+
+// handle pdf uploads....
+
+
+// Storage configuration for multer
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // Set the destination folder for uploaded files
+  },
+  filename: function (req, file, cb) {
+    const fileName = `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`;
+    cb(null, fileName); // Set the file name to avoid naming conflicts
+  },
+});
+
+const upload = multer({ storage: storage });
+
+// API endpoint for handling file uploads
+app.post('/api/upload', upload.single('pdf'), (req, res) => {
+  try {
+    const { std, Subject, Unit, Topic, topic_description } = req.body;
+    const pdfPath = req.file.path;
+    console.log(std)
+    console.log(Subject)
+    console.log(Unit)
+    console.log(Topic)
+    console.log(topic_description)
+    // Save the file details to your database
+    // Assuming you have a File model for storing file information
+    const newFile = new File({
+      std,
+      selectedSubject: Subject,
+      selectedUnit: Unit,
+      selectedTopic: Topic,
+      pdfPath,
+      topicDescription: topic_description,
+    });
+
+    newFile.save();
+
+    res.json({ message: 'File uploaded successfully' });
+  } catch (error) {
+    console.error('Error handling file upload:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+
+// api end to update profile
+
+// API endpoint to update the user's profile
+app.post('/api/update-profile', verifyToken, async (req, res) => {
+  try {
+    const { studentName, password } = req.body;
+
+
+    // Validate input (you can add more validation as needed)
+
+    // Update the user's profile
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      req.user._id,
+      
+      { $set: { studentName, password: bcrypt.hashSync(password, 10) } },
+      { new: true }
+    );
+
+    res.status(200).json({ message: 'Profile updated successfully', user: updatedUser });
+  } catch (error) {
+    console.error('Error updating profile', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

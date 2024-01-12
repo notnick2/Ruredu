@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 
 const Topic = () => {
   const navigate = useNavigate();
@@ -49,12 +49,15 @@ const Topic = () => {
         <p>Loading...</p>
       ) : (
         <ul>
-          {topics.map((topic, index) => (
-            <li key={index} className="mb-2">
-              <strong>{topic.topic_name}</strong>: {topic.topic_description}
-            </li>
-          ))}
-        </ul>
+  {topics.map((topic, index) => (
+    <li key={index} className="mb-2">
+      <Link to={`/${topic.topic_name}`}>
+        <strong>{topic.topic_name}</strong>: {topic.topic_description}
+      </Link>
+    </li>
+  ))}
+</ul>
+
       )}
     </div>
   );

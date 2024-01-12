@@ -7,7 +7,7 @@ import logout from '../assets/logout.svg';
 import profile from '../assets/profile.svg';
 import tasks from '../assets/tasks.svg';
 import admin from '../assets/admin.svg';
-
+import user from '../assets/user.png';
 const Dashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -86,7 +86,7 @@ console.log(subjects);
               location.pathname === '/dashboard/home' ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
             }`}
           >
-            <img src={home} className="w-6 h-6" alt="Home Icon" />
+            <img src={home} className="w-6 h-6" alt="home Icon" />
             <span>Home</span>
           </Link>
           
@@ -153,12 +153,12 @@ console.log(subjects);
 
       {/* Top Navigation Bar */}
       <nav className="col-span-10 row-span-1 bg-gray-100 flex flex-row justify-end items-center pr-10 border-b-2 border-solid border-gray-500">
-        <img src={landing} className="w-5 h-5" alt="User Avatar" />
+        <img src={user} className="w-7 h-7" alt="User Avatar" />
         <h1 className="ml-2">{username}</h1>
       </nav>
-      <main>
+      <div className=" col-span-10 row-span-11">
         <Outlet />
-      </main>
+      </div>
     </div>
   );
 };

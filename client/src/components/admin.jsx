@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Content = () => {
   const location = useLocation();
@@ -18,7 +19,9 @@ const Content = () => {
   const [subjectNames, setSubjectNames] = useState([]);
   const [unitNames, setUnitNames] = useState([]);
   const [topicNames, setTopicNames] = useState([]);
+  const [topicDescription, setTopicDescription] = useState([]);
   const [add, setAdd] = useState(false);
+  const [file, setFile] = useState(null);
 
   useEffect(() => {
     const checkTokenAndFetchAccess = async () => {
@@ -220,81 +223,207 @@ const Content = () => {
     }
   };
 
-  return (
-    <>
-      <div>
-        <h2>Select or Add Class:</h2>
-        <p>Selected Class: {std}</p>
-        <select onChange={(e) => setStd(e.target.value)} value={std}>
-          <option value="">Select Class</option>
-          {[...Array(10)].map((_, index) => (
-            <option key={index} value={index + 1}>
-              {index + 1}
-            </option>
-          ))}
-        </select>
-        <input type="text" value={newStd} onChange={(e) => setNewStd(e.target.value)} placeholder="New Class" />
-        <button onClick={handleAddStd}>Add Class</button>
-      </div>
 
-      {std && (
-        <>
-          <div>
-            <h2>Select or Add Subject:</h2>
-            <p>Selected Subject: {selectedSubject}</p>
-            <select onChange={(e) => setSelectedSubject(e.target.value)}>
-              <option value="">Select Subject</option>
-              {subjectNames.map((subject, index) => (
-                <option key={index} value={subject}>
-                  {subject}
-                </option>
-              ))}
-            </select>
-            <input type="text" value={newSubject} onChange={(e) => setNewSubject(e.target.value)} placeholder="New Subject" />
-            <button onClick={() => { handleAddSubject(); setAdd(true); }}>Add Subject</button>
+  const handleAddTopicDescription = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        // Redirect to / if there is no token
+        navigate('/');
+        return;
+      }
 
-          </div>
+      // Send a request to the backend to add a new topic description
+      const response = await fetch('http://localhost:5000/api/add-topic-description', {
+        method: 'POST',
+        headers: {
+          Authorization: token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          std,
+          subject: selectedSubject,
+          unit: selectedUnit,
+          topic: selectedTopic,
+          topic_description: topicDescription,
 
-          <div>
-            <h2>Select or Add Unit:</h2>
-            <p>Selected Unit: {selectedUnit}</p>
-            <select onChange={(e) => setSelectedUnit(e.target.value)}>
-              <option value="">Select Unit</option>
-              {unitNames.map((unit, index) => (
-                <option key={index} value={unit}>
-                  {unit}
-                </option>
-              ))}
-            </select>
-            <input type="text" value={newUnit} onChange={(e) => setNewUnit(e.target.value)} placeholder="New Unit" />
-            <button onClick={() => { handleAddUnit(); setAdd(true); }}>Add unit</button>
+        }),
+      });
 
-          </div>
+      if (response.ok) {
+        console.log('Topic description added successfully!',topicDescription);
+        // Refetch topics to update the dropdown
+        
+      } else {
+        console.error('Error adding topic description');
+      }
+    } catch (error) {
+      console.error('Error adding topic description', error);
+    }
+  };
 
-          <div>
-            <h2>Select or Add Topic:</h2>
-            <p>Selected Topic: {selectedTopic}</p>
-            <select onChange={(e) => setSelectedTopic(e.target.value)}>
-              <option value="">Select Topic</option>
-              {topicNames.map((topic, index) => (
-                <option key={index} value={topic}>
-                  {topic}
-                </option>
-              ))}
-            </select>
-            <input type="text" value={newTopic} onChange={(e) => setNewTopic(e.target.value)} placeholder="New Topic" />
-            <button onClick={() => { handleAddTopic(); setAdd(true); }}>Add topic</button>
 
-          </div>
+//pdf upload
 
-          <div>
-            <h2>Upload PDF Document:</h2>
-            {/* Add file upload input and button */}
-          </div>
-        </>
-      )}
-    </>
-  );
+const handleFileChange = (e) => {
+  setFile(e.target.files[0]);
 };
 
+const handleFileUpload = async () => {
+  const formData = new FormData();
+  formData.append('pdf', file);
+  formData.append('std', std);
+  formData.append('Subject', selectedSubject);
+  formData.append('Unit', selectedUnit);
+  formData.append('Topic', selectedTopic);
+  formData.append('topic_description', topicDescription);
+  console.log(formData);
+  try {
+    await axios.post('http://localhost:5000/api/upload', formData);
+    console.log('File uploaded successfully');
+  } catch (error) {
+    console.error('Error uploading file:', error);
+  }
+};
+
+return (
+  <div className="h-825  flex flex-col flex-wrap gap-4 ml-8">
+    <div className="mb-4">
+      <h2 className="text-lg font-semibold">Select or Add Class:</h2>
+      <p className="mb-2">Selected Class: {std}</p>
+      <select className="mr-2 p-2 border border-gray-300 rounded" onChange={(e) => setStd(e.target.value)} value={std}>
+        <option value="">Select Class</option>
+        {[...Array(10)].map((_, index) => (
+          <option key={index} value={index + 1}>
+            {index + 1}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    {std && (
+      <>
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold">Select or Add Subject:</h2>
+          <p className="mb-2">Selected Subject: {selectedSubject}</p>
+          <select className="mr-2 p-2 border border-gray-300 rounded" onChange={(e) => setSelectedSubject(e.target.value)}>
+            <option value="">Select Subject</option>
+            {subjectNames.map((subject, index) => (
+              <option key={index} value={subject}>
+                {subject}
+              </option>
+            ))}
+          </select>
+          <input
+            type="text"
+            value={newSubject}
+            onChange={(e) => setNewSubject(e.target.value)}
+            placeholder="New Subject"
+            className="mr-2 p-2 border border-gray-300 rounded"
+          />
+          <button
+            onClick={() => {
+              handleAddSubject();
+              setAdd(true);
+            }}
+            className="p-2 bg-blue-500 text-white rounded"
+          >
+            Add Subject
+          </button>
+        </div>
+
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold">Select or Add Unit:</h2>
+          <p className="mb-2">Selected Unit: {selectedUnit}</p>
+          <select className="mr-2 p-2 border border-gray-300 rounded" onChange={(e) => setSelectedUnit(e.target.value)}>
+            <option value="">Select Unit</option>
+            {unitNames.map((unit, index) => (
+              <option key={index} value={unit}>
+                {unit}
+              </option>
+            ))}
+          </select>
+          <input
+            type="text"
+            value={newUnit}
+            onChange={(e) => setNewUnit(e.target.value)}
+            placeholder="New Unit"
+            className="mr-2 p-2 border border-gray-300 rounded"
+          />
+          <button
+            onClick={() => {
+              handleAddUnit();
+              setAdd(true);
+            }}
+            className="p-2 bg-blue-500 text-white rounded"
+          >
+            Add Unit
+          </button>
+        </div>
+
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold">Select or Add Topic:</h2>
+          <p className="mb-2">Selected Topic: {selectedTopic}</p>
+          <select className="mr-2 p-2 border border-gray-300 rounded" onChange={(e) => setSelectedTopic(e.target.value)}>
+            <option value="">Select Topic</option>
+            {topicNames.map((topic, index) => (
+              <option key={index} value={topic}>
+                {topic}
+              </option>
+            ))}
+          </select>
+          <input
+            type="text"
+            value={newTopic}
+            onChange={(e) => setNewTopic(e.target.value)}
+            placeholder="New Topic"
+            className="mr-2 p-2 border border-gray-300 rounded"
+          />
+          <button
+            onClick={() => {
+              handleAddTopic();
+              setAdd(true);
+            }}
+            className="p-2 bg-blue-500 text-white rounded"
+          >
+            Add Topic
+          </button>
+        </div>
+
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold">Add Topic Description:</h2>
+          <input
+            type="text"
+            value={topicDescription}
+            onChange={(e) => setTopicDescription(e.target.value)}
+            placeholder="Topic Description"
+            className="mr-2 p-2 border border-gray-300 rounded"
+          />
+          <button
+            onClick={() => {
+              handleAddTopicDescription();
+              setAdd(true);
+            }}
+            className="p-2 bg-blue-500 text-white rounded"
+          >
+            Add Topic Description
+          </button>
+          <p className="mt-2">{topicDescription}</p>
+        </div>
+
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold">Upload PDF Document:</h2>
+          <input type="file" onChange={handleFileChange} className="mr-2" />
+          <button onClick={handleFileUpload} className="p-2 bg-blue-500 text-white rounded">
+            Upload PDF
+          </button>
+        </div>
+      </>
+    )}
+  </div>
+);
+
+
+
+}
 export default Content;
