@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 
 const Content = () => {
   const location = useLocation();
@@ -90,37 +90,47 @@ const Content = () => {
 
   return (
     <>
-      <div className="container mx-auto mt-8">
-        <h1 className="text-3xl font-bold mb-4">Subjects</h1>
-        <div className="grid grid-cols-3 gap-4">
-          {subjectNames.map((subject, index) => (
-            <div
-              key={index}
-              className={`bg-blue-200 p-4 rounded cursor-pointer transition-all ${
-                isExpanded && selectedSubject === subject ? 'col-span-3' : 'col-span-1'
-              }`}
-              onClick={() => handleSubjectClick(subject)}
-            >
-              <h2 className="text-xl font-bold mb-2">{subject}</h2>
-              {isExpanded && selectedSubject === subject && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Unit Names:</h3>
-                  <ul>
+    <div className="container mx-auto mt-8">
+      <h1 className="text-3xl font-bold mb-4">Subjects</h1>
+      <div className="flex flex-col max-w-[400px] overflow-y-auto max-h-[700px] pr-4 gap-4"
+      >
+        {subjectNames.map((subject, index) => (
+          <div
+            key={index}
+            className={`bg-white p-4 rounded cursor-pointer shadow-md ${
+              isExpanded && selectedSubject === subject ? 'flex-grow expanded shadow-lg' : 'flex-grow-0'
+            }`}
+            onClick={() => handleSubjectClick(subject)}
+          >
+            <h2 className="text-xl font-bold mb-2">{subject}</h2>
+            {isExpanded && selectedSubject === subject && (
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Unit Names:</h3>
+                <ul>
                     {unitNames[subject]?.map((unit, unitIndex) => (
-                      <li key={unitIndex} className="mb-2">
-                        <a href={`/dashboard/content/${subject}/${unit}`} className="text-blue-500 hover:underline">
-                          {unit}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+                       <li key={unitIndex} className="mb-2">
+                            <div className="flex flex-col gap-3">
+                                   {/* Updated to use a dropdown link with blue border */}
+                                   <Link
+                                    to={`/dashboard/content/${subject}/${unit}`}
+                                     className={`border px-2 py-1 m-2 rounded text-blue-500 hover:bg-blue-100 hover:border-blue-700 transition ${isExpanded ? 'border-b-2 border-blue-500' : ''}`}
+                                    >
+                                   {unit}
+                                   </Link>
+                            </div>
+                       </li>
+                       ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
-    </>
+    </div>
+  </>  
+  
+  
+
   );
 };
 

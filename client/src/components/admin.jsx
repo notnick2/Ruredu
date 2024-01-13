@@ -238,7 +238,7 @@ const Content = () => {
       }
     } catch (error) {
       console.error('Error adding topic', error);
-    }
+    } 
   };
   
 

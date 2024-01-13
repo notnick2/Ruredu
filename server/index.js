@@ -6,6 +6,7 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 
+
 const app = express();
 const port = 5000;
 
@@ -15,16 +16,18 @@ app.use(express.json());
 mongoose.connect('mongodb+srv://varun024123:ruredu@cluster0.tllkn3x.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 if (db) {
-    console.log('Connected to MongoDB');
+  console.log('Connected to MongoDB');
 }
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 // User Model
 const UserSchema = new mongoose.Schema({
-    studentName: String,
-    std: { type: Number, required: true },
-    password: String,
-    access: Boolean,
+  studentName: String,
+  std: { type: Number, required: true },
+  password: String,
+  access: Boolean,
+  incomplete: [{ type: String }],
+  complete: [{ type: String }],
 });
 
 const UserModel = mongoose.model('User', UserSchema);
@@ -53,7 +56,7 @@ const SubjectSchema = new mongoose.Schema({
 
 const SubjectModel = mongoose.model('Subject', SubjectSchema);
 
-
+// file schema
 const fileSchema = new mongoose.Schema({
   std: {
     type: String,
@@ -93,124 +96,124 @@ const secretKey = 'hackingmeisimpossible'; // Replace with a strong, secret key
 
 // Middleware to verify JWT tokens
 const verifyToken = async (req, res, next) => {
-    const token = req.header('Authorization');
-    console.log('verifying');
-    if (!token) return res.status(401).json({ message: 'Unauthorized' });
+  const token = req.header('Authorization');
+  console.log('verifying');
+  if (!token) return res.status(401).json({ message: 'Unauthorized' });
 
-    try {
-        const decodedToken = jwt.verify(token, secretKey);
-        const userId = decodedToken.userId;
+  try {
+    const decodedToken = jwt.verify(token, secretKey);
+    const userId = decodedToken.userId;
 
-        // Fetch user details from the MongoDB collection based on userId
-        const user = await UserModel.findById(userId);
+    // Fetch user details from the MongoDB collection based on userId
+    const user = await UserModel.findById(userId);
 
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        req.user = {
-            userId: user._id,
-            studentName: user.studentName,
-            std: user.std,
-            access: user.access,
-        };
-        
-        next();
-    } catch (error) {
-        console.log('Token Verification Error:', error);
-        return res.status(403).json({ message: 'Forbidden' });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
+
+    req.user = {
+      userId: user._id,
+      studentName: user.studentName,
+      std: user.std,
+      access: user.access,
+    };
+
+    next();
+  } catch (error) {
+    console.log('Token Verification Error:', error);
+    return res.status(403).json({ message: 'Forbidden' });
+  }
 };
 
 
 // API endpoint for user registration
 app.post('/api/register', async (req, res) => {
-    try {
-        const { studentName, std, password, access } = req.body;
+  try {
+    const { studentName, std, password, access } = req.body;
 
-        // Check if the user already exists
-        const existingUser = await UserModel.findOne({ studentName });
-        if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
-
-        // Hash the password using bcrypt
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Save user to the database
-        const user = new UserModel({ studentName, std, password: hashedPassword, access });
-        await user.save();
-
-        
-        res.status(201).json({ message: 'Registration successful' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+    // Check if the user already exists
+    const existingUser = await UserModel.findOne({ studentName });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
     }
+
+    // Hash the password using bcrypt
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Save user to the database
+    const user = new UserModel({ studentName, std, password: hashedPassword, access });
+    await user.save();
+
+
+    res.status(201).json({ message: 'Registration successful' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 // API endpoint for user login
 app.post('/api/login', async (req, res) => {
-    try {
-        const { studentName, password } = req.body;
+  try {
+    const { studentName, password } = req.body;
 
-        // Find the user in the database
-        const user = await UserModel.findOne({ studentName });
-        if (!user) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
-
-        // Compare the provided password with the hashed password in the database
-        const passwordMatch = await bcrypt.compare(password, user.password);
-        if (!passwordMatch) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
-
-        // Generate a JWT token upon successful login
-        const token = jwt.sign({ userId: user._id, studentName: user.studentName }, secretKey);
-
-        res.status(200).json({ token });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal Server Error' });
+    // Find the user in the database
+    const user = await UserModel.findOne({ studentName });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
+
+    // Compare the provided password with the hashed password in the database
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Generate a JWT token upon successful login
+    const token = jwt.sign({ userId: user._id, studentName: user.studentName }, secretKey);
+
+    res.status(200).json({ token });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
 
 
 //API endpoint to fetch the user's access
 
 app.get('/api/get-access', verifyToken, async (req, res) => {
-    // Access information, student name, and std are available in req.user
-    try {
-      res.json({
-        access: req.user.access,
-        studentName: req.user.studentName,
-        std: req.user.std,
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal Server Error' });
-    }
-  });
-  
+  // Access information, student name, and std are available in req.user
+  try {
+    res.json({
+      access: req.user.access,
+      studentName: req.user.studentName,
+      std: req.user.std,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
 
 
 // API endpoint to fetch subjects based on user's class
 app.get('/api/get-subjects', verifyToken, async (req, res) => {
-    try {
-      const subjects = await SubjectModel.find({ std: req.user.std });
-  
-      // Extract only the 'name' array from each subject
-      console.log(subjects)
-      //const subjectNames = subjects.map(subject => subject.name);
-       // console.log(subjectNames);
-      res.json({ subjects });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal Server Error' });
-    }
-  });
-  
+  try {
+    const subjects = await SubjectModel.find({ std: req.user.std });
+
+    // Extract only the 'name' array from each subject
+    console.log(subjects)
+    //const subjectNames = subjects.map(subject => subject.name);
+    // console.log(subjectNames);
+    res.json({ subjects });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
 
 // Endpoint to get topics based on subject and unit
 app.get('/api/get-topics/:subject/:unit', verifyToken, async (req, res) => {
@@ -311,6 +314,16 @@ app.post('/api/add-topic', verifyToken, async (req, res) => {
       { $addToSet: { 'name.$.units.$[u].topics': { topic_name: topic } } },
       { arrayFilters: [{ 'u.unit_name': unit }], new: true }
     );
+
+
+    // Add the topic to the incomplete array in the UserModel
+    const userId = req.user.userId;
+    await UserModel.findByIdAndUpdate(
+      userId,
+      { $addToSet: { incomplete: topic } },
+      { new: true }
+    );
+
 
     res.json({ success: true, data: updatedData });
   } catch (error) {
@@ -424,6 +437,45 @@ app.post('/api/upload', upload.single('pdf'), (req, res) => {
 // api end to update profile
 
 // API endpoint to update the user's profile
+
+
+app.put('/api/updateUser', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { updatedStudentName, newPassword } = req.body;
+    console.log(req.body)
+    console.log(updatedStudentName)
+    console.log(newPassword)
+    // Validate and update user information
+    const user = await UserModel.findById(userId);
+    console.log(user)
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (updatedStudentName) {
+      user.studentName = updatedStudentName;
+      console.log(user.studentName);
+    }
+
+    if (newPassword) {
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+      user.password = hashedPassword;
+      console.log(hashedPassword)
+      console.log(user.password)
+    }
+
+    // Save the updated user details
+    await user.save();
+
+    res.status(200).json({ message: 'User information updated successfully' });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
 
 
 // send pdf to frontend
@@ -546,57 +598,95 @@ app.get('/api/get-topics', async (req, res) => {
 //********************************************************************************************************************************************************
 
 
-app.get('/checking', async (req, res) => {
+// API endpoint to get incomplete tasks
+app.get('/api/get-incomplete-tasks', verifyToken, async (req, res) => {
   try {
-    const std = parseInt(req.query.std);
-    const subjectName = req.query.subjectName;
-    const unitName = req.query.unitName;
+      // Access the user ID from req.user
+      const userId = req.user.userId;
 
-    const subject = await SubjectModel.findOne({ std, 'name.subject_name': subjectName });
+      // Assuming your User model is UserModel, and incomplete tasks are stored in the same collection
+      const user = await UserModel.findById(userId);
 
-    if (!subject) {
-      return res.status(404).json({ message: 'Subject not found' });
-    }
+      if (!user) {
+          return res.status(404).json({ error: 'User not found' });
+      }
 
-    const unit = subject.name.find((s) => s.subject_name === subjectName)?.units.find((u) => u.unit_name === unitName);
-
-    if (!unit) {
-      return res.status(404).json({ message: 'Unit not found' });
-    }
-
-    const topics = unit.topics;
-
-    topics.forEach((topic) => {
-      console.log(`Topic Name: ${topic.topic_name}, Topic Description: ${topic.topic_description}`);
-    });
-
-    res.status(200).json({ topics });
+      // Access the incomplete array from the user model
+      const incompleteTasks = user.incomplete;
+      res.json({ incomplete: incompleteTasks });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal Server Error' });
+      console.error('Error fetching incomplete tasks:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+// API endpoint to get complete tasks
+app.get('/api/get-complete-tasks', verifyToken, async (req, res) => {
+  try {
+      const userId = req.user.userId;
+      console.log(userId)
+      const user = await UserModel.findById(userId);
+      console.log(user)
+      if (!user) {
+          return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Access the complete array from the user model
+      const completeTasks = user.complete;
+      console.log(completeTasks);
+      console.log('completed tasks dfsfhksdhgkjkfsdk');
+      res.json({ complete: completeTasks });
+  } catch (error) {
+      console.error('Error fetching complete tasks:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
 
 
+// API endpoint to check if a topic is completed
+app.post('/api/check-topic-completion', verifyToken, async (req, res) => {
+  try {
+    const { topicName } = req.body;
+    console.log(topicName)
+    const userId = req.user.userId;
+    const user = await UserModel.findById(userId);
+    console.log(user)
+    // Assuming the complete array is an array of objects with a topic_name property
+    const isCompleted = user.complete.some(topic => topic === topicName);
+    console.log(isCompleted);
+    res.json({ isCompleted });
+  } catch (error) {
+    console.error('Error checking topic completion:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
+// API endpoint to mark a topic as completed
+app.post('/api/mark-topic-completed', verifyToken, async (req, res) => {
+  try {
+    const { topicName } = req.body;
+    console.log(topicName);
+    // Add the completed topic to the complete array and remove it from the incomplete array
+    await UserModel.findByIdAndUpdate(
+      req.user.userId,
+      {
+        $addToSet: { complete: topicName  },
+        $pull: { incomplete: topicName  },
+      },
+      { new: true }
+    );
 
-
-
-
-
-
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    res.json({ success: true, message: 'Topic marked as completed' });
+  } catch (error) {
+    console.error('Error marking topic as completed:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 
 
-
-
-
-
-
-
-
-
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
