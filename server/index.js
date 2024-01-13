@@ -114,6 +114,7 @@ const verifyToken = async (req, res, next) => {
             std: user.std,
             access: user.access,
         };
+        
         next();
     } catch (error) {
         console.log('Token Verification Error:', error);
@@ -271,7 +272,6 @@ app.post('/api/add-subject', verifyToken, async (req, res) => {
       { $addToSet: { 'name': { subject_name: subject, units: [] } } },
       { new: true }
     );
-
     res.json({ success: true, data: updatedData });
   } catch (error) {
     console.error('Error adding subject', error);
@@ -424,28 +424,6 @@ app.post('/api/upload', upload.single('pdf'), (req, res) => {
 // api end to update profile
 
 // API endpoint to update the user's profile
-app.post('/api/update-profile', verifyToken, async (req, res) => {
-  try {
-    const { studentName, password } = req.body;
-
-
-    // Validate input (you can add more validation as needed)
-
-    // Update the user's profile
-    const updatedUser = await UserModel.findByIdAndUpdate(
-      req.user._id,
-      
-      { $set: { studentName, password: bcrypt.hashSync(password, 10) } },
-      { new: true }
-    );
-
-    res.status(200).json({ message: 'Profile updated successfully', user: updatedUser });
-  } catch (error) {
-    console.error('Error updating profile', error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-});
-
 
 
 // send pdf to frontend
@@ -471,6 +449,105 @@ app.post('/api/get-pdf', verifyToken, async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+
+// Check access route
+app.get('/api/check-access', async (req, res) => {
+  try {
+    const { username } = req.query;
+    const user = await UserModel.findOne({ studentName: username });
+
+    if (user) {
+      res.json({ access: user.access });
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error checking access status:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Update access route
+app.post('/api/update-access', async (req, res) => {
+  try {
+    const { username, access } = req.body;
+    const user = await UserModel.findOneAndUpdate(
+      { studentName: username },
+      { access },
+      { new: true }
+    );
+
+    if (user) {
+      res.json({ success: 'Access status updated successfully' });
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error updating access status:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/api/get-units', async (req, res) => {
+  try {
+    const std = req.query.std;
+    const subjectName = req.query.subject_name;
+
+    const subject = await SubjectModel.findOne({ std, 'name.subject_name': subjectName });
+
+    if (!subject) {
+      return res.status(404).json({ error: 'Subject not found' });
+    }
+
+    const units = subject.name.find((subj) => subj.subject_name === subjectName).units;
+
+    const unitNames = units.map((unit) => unit.unit_name);
+
+    console.log('Unit Names:', unitNames);
+    res.json({ unitNames });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/api/get-topics', async (req, res) => {
+  try {
+    const { std, subject, unit } = req.query;
+    console.log(std, subject, unit);
+    const result = await SubjectModel.findOne({ std, 'name.subject_name': subject, 'units.unit_name': unit });
+    console.log(result)
+    if (result) {
+      const topics = result.units.find((u) => u.unit_name === unit).topics.map((topic) => topic.topic_name);
+      res.json({ topics });
+    } else {
+      res.status(404).json({ error: 'Unit not found' });
+    }
+  } catch (error) {
+    console.error('Error fetching topics:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+//********************************************************************************************************************************************************
+
+
+app.get('/checking', async (req, res)=> {
+  const result = await SubjectModel.findOne({ std: 1, 'name.subject_name': 'subject1'});
+  console.log(result);
+});
+
+
+
+
+
+
+
+
+
+
+
 
 
 

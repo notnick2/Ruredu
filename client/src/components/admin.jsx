@@ -3,13 +3,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Content = () => {
-  const location = useLocation();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [username, setUsername] = useState("");
   const [std, setStd] = useState("");
-  const [newStd, setNewStd] = useState("");
-  const [isExpanded, setIsExpanded] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState("");
   const [newSubject, setNewSubject] = useState("");
   const [selectedUnit, setSelectedUnit] = useState("");
@@ -28,6 +25,7 @@ const Content = () => {
   const [successT, setSuccessT] = useState('');
   const [successD, setSuccessD] = useState('');
   const [successUpload, setSuccessUpload] = useState('');
+  const [accessStatus, setAccessStatus] = useState(null);
 
   useEffect(() => {
     const checkTokenAndFetchAccess = async () => {
@@ -38,7 +36,7 @@ const Content = () => {
           navigate('/');
           return;
         }
-
+  
         // Send a request to the backend to fetch access information
         const response = await fetch('http://localhost:5000/api/get-access', {
           method: 'GET',
@@ -47,12 +45,18 @@ const Content = () => {
             'Content-Type': 'application/json',
           },
         });
-
+  
         if (response.ok) {
           const data = await response.json();
           setIsAdmin(data.access);
           setUsername(data.studentName);
           setStd(data.std);
+  
+          // Check if the user is not an admin and redirect
+          if (!data.access) {
+            navigate('/');
+          }
+  
         } else {
           // Handle error fetching access information
           console.error('Error fetching access information');
@@ -61,9 +65,10 @@ const Content = () => {
         console.error('Error fetching access information', error);
       }
     };
-
+  
     checkTokenAndFetchAccess();
-  }, [navigate]);
+  }, []); // Empty dependency array to run only once when the component mounts
+  
 
   useEffect(() => {
     const fetchSubjects = async (selectedStd) => {
@@ -89,12 +94,13 @@ const Content = () => {
           const data = await subjectsResponse.json();
           const subjects = data.subjects;
           const Subject = subjects.map(subject => subject.name.map(sub => sub.subject_name)).flat();
-          const Unit = subjects.map(subject => subject.name.flatMap(unit => unit.units.map(u => u.unit_name))).flat();
-          const Topic = subjects.map(subject => subject.name.flatMap(unit => unit.units.flatMap(t => t.topics.map(topic => topic.topic_name)))).flat();
-
+          
           setSubjectNames(Subject);
-          setUnitNames(Unit);
-          setTopicNames(Topic);
+          
+          console.log(subjectNames)
+          
+
+
         } else {
           console.error('Error fetching subjects');
         }
@@ -138,7 +144,7 @@ const Content = () => {
 
       if (response.ok) {
         console.log('Subject added successfully!');
-        setSuccessS(`${newSubject} added successfully!`);
+        setSuccessS(`${newSubject} added successfully`);
         // Refetch subjects to update the dropdown
         
       } else {
@@ -157,7 +163,13 @@ const Content = () => {
         navigate('/');
         return;
       }
-
+  
+      // Check if selectedSubject is an empty string
+      if (selectedSubject === '') {
+        setSuccessU('Please select the subject');
+        return;
+      }
+  
       // Send a request to the backend to add a new unit
       const response = await fetch('http://localhost:5000/api/add-unit', {
         method: 'POST',
@@ -171,12 +183,11 @@ const Content = () => {
           unit: newUnit,
         }),
       });
-
+  
       if (response.ok) {
         console.log('Unit added successfully!');
-        setSuccessU(`${newUnit} added successfully!`);
+        setSuccessU(`${newUnit} added successfully to ${selectedSubject}`);
         // Refetch units to update the dropdown
-        
       } else {
         console.error('Error adding unit');
       }
@@ -184,7 +195,7 @@ const Content = () => {
       console.error('Error adding unit', error);
     }
   };
-
+  
   const handleAddTopic = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -193,7 +204,13 @@ const Content = () => {
         navigate('/');
         return;
       }
-
+  
+      // Check if selectedSubject or selectedUnit is an empty string
+      if (selectedSubject === '' || selectedUnit === '') {
+        setSuccessT('subject or unit is not selected');
+        return;
+      }
+  
       // Send a request to the backend to add a new topic
       const response = await fetch('http://localhost:5000/api/add-topic', {
         method: 'POST',
@@ -208,12 +225,11 @@ const Content = () => {
           topic: newTopic,
         }),
       });
-
+  
       if (response.ok) {
         console.log('Topic added successfully!');
-        setSuccessT(`${newTopic} added successfully!`);
+        setSuccessT(`${newTopic} added successfully to ${selectedUnit}`);
         // Refetch topics to update the dropdown
-        
       } else {
         console.error('Error adding topic');
       }
@@ -221,6 +237,7 @@ const Content = () => {
       console.error('Error adding topic', error);
     }
   };
+  
 
 
   const handleAddTopicDescription = async () => {
@@ -229,6 +246,11 @@ const Content = () => {
       if (!token) {
         // Redirect to / if there is no token
         navigate('/');
+        return;
+      }
+
+      if (selectedSubject === '' || selectedUnit === '' || selectedTopic === '') {
+        setSuccessD('subject or unit or topic is not selected');
         return;
       }
 
@@ -251,7 +273,7 @@ const Content = () => {
 
       if (response.ok) {
         console.log('Topic description added successfully!',topicDescription);
-        setSuccessD(`${topicDescription} added successfully!`);
+        setSuccessD(`${topicDescription} added successfully to ${selectedTopic}`);
         // Refetch topics to update the dropdown
         
       } else {
@@ -287,8 +309,153 @@ const handleFileUpload = async () => {
   }
 };
 
+const handleGrantAccess = async () => {
+  const enteredUsername = prompt('Enter username to grant access:');
+  if (enteredUsername) {
+    setUsername(enteredUsername);
+    // Fetch user access status
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        // Redirect to / if there is no token
+        navigate('/');
+        return;
+      }
+
+      const response = await fetch(`http://localhost:5000/api/check-access?username=${enteredUsername}`, {
+        method: 'GET',
+        headers: {
+          Authorization: token,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.access) {
+          setAccessStatus(`${enteredUsername} already has access.`);
+        } else {
+          setAccessStatus(`${enteredUsername}'s access has been granted.`);
+          // Update access status
+          await fetch('http://localhost:5000/api/update-access', {
+            method: 'POST',
+            headers: {
+              Authorization: token,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              username: enteredUsername,
+              access: true,
+            }),
+          });
+        }
+      } else {
+        console.error('Error checking access status');
+      }
+    } catch (error) {
+      console.error('Error checking access status', error);
+    }
+  }
+};
+
+const handleDenyAccess = async () => {
+  const enteredUsername = prompt('Enter username to deny access:');
+  if (enteredUsername) {
+    setUsername(enteredUsername);
+    // Fetch user access status
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        // Redirect to / if there is no token
+        navigate('/');
+        return;
+      }
+
+      const response = await fetch(`http://localhost:5000/api/check-access?username=${enteredUsername}`, {
+        method: 'GET',
+        headers: {
+          Authorization: token,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (!data.access) {
+          setAccessStatus(`${enteredUsername} already has access denied.`);
+        } else {
+          setAccessStatus(`${enteredUsername}'s access has been denied.`);
+          // Update access status
+          await fetch('http://localhost:5000/api/update-access', {
+            method: 'POST',
+            headers: {
+              Authorization: token,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              username: enteredUsername,
+              access: false,
+            }),
+          });
+        }
+      } else {
+        console.error('Error checking access status');
+      }
+    } catch (error) {
+      console.error('Error checking access status', error);
+    }
+  }
+};
+
+
+useEffect(() => {
+  // Make API request for unit names
+  fetch(`http://localhost:5000/api/get-units?std=${std}&subject_name=${selectedSubject}`)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Network response was not ok: ${response.statusText}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      // Assuming data is in the format { unitNames: ['unit1', 'unit2', ...] }
+      const { unitNames } = data;
+      console.log('Unit Names:', unitNames);
+      setUnitNames(unitNames);
+    })
+    .catch((error) => console.error('Error fetching unit names:', error));
+}, [selectedSubject]);
+
+useEffect(() =>{
+  fetch(`http://localhost:5000/api/get-topics?std=${std}&subject=${selectedSubject}&unit=${selectedUnit}`)
+  .then((response) => {
+    if(!response.ok) {
+      throw new Error (`Network response was not ok: ${response.statusText}`);
+    }
+    return response.json();
+  })
+  .then((data) => {
+    const {topicNames} = data;
+    console.log('Topic Names:', topicNames);
+    setTopicNames(topicNames);
+  })
+  .catch((error) => console.error('Error fetching topic names:', error));
+
+},[selectedUnit])
+
+
+
 return (
-  <div className="h-825  flex flex-col flex-wrap gap-4 ml-8">
+  <div className="h-825 relative flex flex-col flex-wrap gap-4 ml-8">
+    <div className="absolute top-0 right-0 mt-4 mr-8">
+      <button onClick={handleGrantAccess} className="p-2 bg-blue-500 text-white rounded">
+        Grant Access
+      </button>
+      <button onClick={handleDenyAccess} className="ml-2 p-2 bg-red-500 text-white rounded">
+        Deny Access
+      </button>
+      {accessStatus && <p className="mt-2 text-gray-900 ">{accessStatus}</p>}
+    </div>
     <div className="mb-4">
       <h2 className="text-lg font-semibold">Select Class:</h2>
       <p className="mb-2">Selected Class: {std}</p>

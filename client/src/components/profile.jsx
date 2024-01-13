@@ -1,44 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const Profile = () => {
-  const [studentName, setStudentName] = useState('');
+  const [studentName, setUpdatedStudentName] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('/api/get-profile', {
+          headers: { Authorization: token },
+        });
+        console.log(response.data)
+        const userProfile = response.data.user;
+        console.log(userProfile)
+        setUpdatedStudentName(userProfile.studentName);
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
 
   const handleUpdateProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
-        // Redirect to login or handle unauthorized access
-        console.error('Unauthorized access - Token missing');
-        return;
-      }
 
-      const response = await axios.post(
-        'http://localhost:5000/api/update-profile',
-        { studentName, password },
-        {
-          headers: {
-            Authorization: token,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await axios.put('/api/update-profile', {
+        studentName,
+        password,
+      }, {
+        headers: { Authorization: token },
+      });
 
-      if (response.status === 200) {
-        setMessage('Profile updated successfully');
-      } else {
-        setMessage('Error updating profile');
-      }
+      setMessage('Profile updated successfully');
     } catch (error) {
-      console.error('Error updating profile', error);
       setMessage('Error updating profile');
     }
   };
 
   return (
-    <div className=" mt-10 ml-10 ">
+    <div className="mt-10 ml-10">
       <h1 className="text-3xl font-bold mb-4">Update Profile</h1>
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700">Student Name</label>
@@ -46,7 +51,7 @@ const Profile = () => {
           type="text"
           className="mt-1 p-2 border rounded-md w-80"
           value={studentName}
-          onChange={(e) => setStudentName(e.target.value)}
+          onChange={(e) => setUpdatedStudentName(e.target.value)}
         />
       </div>
       <div className="mb-4">
@@ -64,7 +69,7 @@ const Profile = () => {
       >
         Update Profile
       </button>
-      {message && <p className="mt-4 text-red-500">{message}</p>}
+      {message && <p className="mt-4 text-green-500">{message}</p>}
     </div>
   );
 };

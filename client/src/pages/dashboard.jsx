@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import landing from '../assets/landing.png';
 import content from '../assets/content.svg';
 import home from '../assets/home.svg';
 import logout from '../assets/logout.svg';
@@ -13,10 +12,8 @@ const Dashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState("");
-  const [std, setStd] = useState("");
-  const [subjects, setSubjects] = useState([]);
+  
 
   useEffect(() => {
     const checkTokenAndFetchAccess = async () => {
