@@ -11,7 +11,7 @@ function Register() {
     password: '',
     access: false,
   });
-
+  const [userExists, setUserExists] = useState('');
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   const handleChange = (e) => {
@@ -20,11 +20,18 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       // Send registration data to the server
-      await axios.post('http://localhost:5000/api/register', formData);
-      setRegistrationSuccess(true);
+      const response = await axios.post('http://localhost:5000/api/register', formData);
+  
+      if (response.data.message === 'User already exists') {
+        setUserExists(response.data.message);
+        console.log('User already exists');
+        // Handle user already exists case in the frontend (show an error message, redirect, etc.)
+      } else {
+        setRegistrationSuccess(true);
+      }
     } catch (error) {
       console.error('Registration failed', error);
     }
@@ -56,6 +63,9 @@ function Register() {
         ) : (
           <div>
             <h2 className="text-2xl font-bold mb-4">Register</h2>
+            {userExists.length > 0 && (
+            <p className="text-red-500">username already exists.</p>
+          )}
             <form onSubmit={handleSubmit}>
               <label className="block mb-2">
                 Student Name:

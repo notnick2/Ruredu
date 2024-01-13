@@ -44,7 +44,7 @@ const Tasks = () => {
         <div className="flex flex-col gap-4 max-h-100">
             <div>
                 <h2 className="text-lg font-bold  m-6">Incomplete Tasks</h2>
-                <div className="flex flex-col gap-3 overflow-y-auto max-h-[300px] ml-10 mr-40 pr-4 ">
+                <div className="flex flex-col-reverse gap-3 overflow-y-auto max-h-[300px] ml-10 mr-40 pr-4 ">
                     {incompleteTasks && incompleteTasks.map((task, index) => (
                         <a
                             key={index}

@@ -4,9 +4,9 @@ import Tasks from './tasks';
 
 const Home = () => {
   return (
-    <div className="flex">
-      {/* Component: Content with left margin */}
-      <div className="flex-1 p-4 ml-4">
+    <div className="flex flex-wrap">
+      {/* Component: Content with left margin on larger screens */}
+      <div className="flex-1 p-4 ml-4 md:ml-0">
         <Content />
       </div>
 

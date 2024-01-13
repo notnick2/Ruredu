@@ -134,7 +134,7 @@ app.post('/api/register', async (req, res) => {
     // Check if the user already exists
     const existingUser = await UserModel.findOne({ studentName });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(200).json({ message: 'User already exists' });
     }
 
     // Hash the password using bcrypt
@@ -144,8 +144,7 @@ app.post('/api/register', async (req, res) => {
     const user = new UserModel({ studentName, std, password: hashedPassword, access });
     await user.save();
 
-
-    res.status(201).json({ message: 'Registration successful' });
+    res.status(200).json({ message: 'Registration successful' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });
@@ -317,12 +316,12 @@ app.post('/api/add-topic', verifyToken, async (req, res) => {
 
 
     // Add the topic to the incomplete array in the UserModel
-    const userId = req.user.userId;
-    await UserModel.findByIdAndUpdate(
-      userId,
+    await UserModel.updateMany(
+      { std },
       { $addToSet: { incomplete: topic } },
       { new: true }
     );
+    
 
 
     res.json({ success: true, data: updatedData });

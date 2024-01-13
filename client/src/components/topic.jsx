@@ -175,7 +175,7 @@ const Topic = () => {
       </div>
       <div className="flex-grow mt-5">
         {pdfPath && (
-          <div className="rounded-lg md:mt-0 mr-12 overflow-hidden">
+          <div className="rounded-lg md:mt-0 sm:ml-0 ml-6 mr-6 sm:mr-12 overflow-hidden">
             <iframe src={`http://localhost:3000/${pdfPath}`} width="100%" height="800px" title="PDF Viewer" className="border border-blue-500"></iframe>
           </div>
         )}

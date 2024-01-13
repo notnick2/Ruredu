@@ -54,84 +54,102 @@ const Dashboard = () => {
   }, [navigate]);
 
   return (
-    <div className="grid grid-cols-12 grid-rows-12 h-screen">
+    <div className="grid grid-cols-12 grid-rows-12 min-h-screen">
       {/* Sidebar */}
-      <div className="hidden md:flex col-span-2 row-span-12 bg-gray-100 p-4 flex-col items-center justify-between">
-        <h1 className="font-poppins font-bold text-5xl text-slate-800 mb-4 pb-10">RUREDU</h1>
+{/* Sidebar */}
+<div className="md:flex col-span-2 row-span-12 bg-gray-100 p-4 flex-col items-center justify-between">
 
-        {/* Sidebar Links */}
-        <nav className="flex flex-col space-y-8">
-          {/* Home Link */}
-          <Link
-            to="/dashboard/home"
-            className={`flex items-center space-x-2 text-3xl ${
-              location.pathname === '/dashboard/home' ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
-            }`}
-          >
-            <img src={home} className="w-6 h-6" alt="home Icon" />
-            <span>Home</span>
-          </Link>
+  {/* Responsive RUREDU */}
+  <h1 className="relative text-2xl mt-2 font-poppins font-bold md:text-5xl text-slate-800 mb-4 pb-2 sm:text-3xl z-1000">
+    RUREDU
+  </h1>
 
-          {/* Content Link */}
-          <Link
-            to="/dashboard/content"
-            className={`flex items-center space-x-2 text-3xl ${
-              location.pathname === '/dashboard/content' || location.pathname.startsWith('/dashboard/content/') ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
-            }`}
-          >
-            <img src={content} className="w-6 h-6" alt="Tasks Icon" />
-            <span>Content</span>
-          </Link>
+  {/* Sidebar Links */}
+  <nav className="flex flex-col space-y-4 sm:space-y-8">
 
-          {/* Tasks Link */}
-          <Link
-            to="/dashboard/tasks"
-            className={`flex items-center space-x-2 text-3xl ${
-              location.pathname === '/dashboard/tasks' ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
-            }`}
-          >
-            <img src={tasks} className="w-6 h-6" alt="Tasks Icon" />
-            <span>Tasks</span>
-          </Link>
+    {/* Home Link */}
+    <Link
+      to="/dashboard/home"
+      className={`flex items-center space-x-2 text-xl sm:text-3xl ${
+        location.pathname === '/dashboard/home' ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
+      }`}
+    >
+      <img src={home} className="w-9 h-9 sm:w-8 sm:h-8 sm:mt-0 mt-[200px]" alt="home Icon" />
+      {/* Use the image directly for small devices */}
+      <span className="hidden sm:inline">Home</span>
+    </Link>
 
-          {/* Profile Link */}
-          <Link
-            to="/dashboard/profile"
-            className={`flex items-center space-x-2 text-3xl ${
-              location.pathname === '/dashboard/profile' ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
-            }`}
-          >
-            <img src={profile} className="w-6 h-6" alt="Profile Icon" />
-            <span>Profile</span>
-          </Link>
+    {/* Content Link */}
+    <Link
+      to="/dashboard/content"
+      className={`flex items-center space-x-2 text-xl sm:text-3xl ${
+        location.pathname === '/dashboard/content' || location.pathname.startsWith('/dashboard/content/') ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
+      }`}
+    >
+      <img src={content} className="w-9 h-9 sm:w-8 sm:h-8" alt="Tasks Icon" />
+      {/* Use the image directly for small devices */}
+      <span className="hidden sm:inline">Content</span>
+    </Link>
 
-          {isAdmin && (
-            /* Admin Link - Render only if the user has admin access */
-            <Link
-              to="/dashboard/admin"
-              className={`flex items-center space-x-2 text-3xl ${
-                location.pathname === '/dashboard/admin' ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
-              }`}
-            >
-              <img src={admin} className="w-6 h-6" alt="Profile Icon" />
-              <span>Admin</span>
-            </Link>
-          )}
-        </nav>
+    {/* Tasks Link */}
+    <Link
+      to="/dashboard/tasks"
+      className={`flex items-center space-x-2 text-xl sm:text-3xl ${
+        location.pathname === '/dashboard/tasks' ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
+      }`}
+    >
+      <img src={tasks} className="w-9 h-9 sm:w-8 sm:h-8" alt="Tasks Icon" />
+      {/* Use the image directly for small devices */}
+      <span className="hidden sm:inline">Tasks</span>
+    </Link>
 
-        <div className="flex flex-col items-end">
-          {/* Logout Link */}
-          <Link
-            to="/"
-            className={`flex items-center space-x-2 text-3xl ${
-              location.pathname === '/dashboard/logout' ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
-            }`}
-          >
-            <img src={logout} className="w-6 h-6" alt="Logout Icon" />
-            <span>Logout</span>
-          </Link>
-        </div>
-      </div>
+    {/* Profile Link */}
+    <Link
+      to="/dashboard/profile"
+      className={`flex items-center space-x-2 text-xl sm:text-3xl ${
+        location.pathname === '/dashboard/profile' ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
+      }`}
+    >
+      <img src={profile} className="w-9 h-9 sm:w-8 sm:h-8" alt="Profile Icon" />
+      {/* Use the image directly for small devices */}
+      <span className="hidden sm:inline">Profile</span>
+    </Link>
+
+    {isAdmin && (
+      /* Admin Link - Render only if the user has admin access */
+      <Link
+        to="/dashboard/admin"
+        className={`flex items-center space-x-2 text-xl sm:text-3xl ${
+          location.pathname === '/dashboard/admin' ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
+        }`}
+      >
+        <img src={admin} className="w-9 h-9 sm:w-8 sm:h-8" alt="Profile Icon" />
+        {/* Use the image directly for small devices */}
+        <span className="hidden sm:inline">Admin</span>
+      </Link>
+    )}
+  </nav>
+
+  <div className="flex flex-col items-end">
+
+    {/* Logout Link */}
+    <Link
+      to="/"
+      className={`flex items-center space-x-2 text-xl sm:text-3xl ${
+        location.pathname === '/dashboard/logout' ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
+      }`}
+    >
+      <img
+        src={logout}
+        className="w-10 h-10 sm:w-8 sm:h-8 mt-5 sm:mt-0  mr-[11px] ml-[2px] sm:mr-0"
+        alt="Logout Icon"
+      />      {/* Use the image directly for small devices */}
+      <span className="hidden sm:inline">Logout</span>
+    </Link>
+
+  </div>
+</div>
+
 
       {/* Top Navigation Bar */}
       <nav className="col-span-10 row-span-1 bg-gray-100 flex flex-row justify-end items-center pr-10 border-b-2 border-solid border-gray-500">

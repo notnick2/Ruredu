@@ -228,7 +228,7 @@ const Content = () => {
           topic: newTopic,
         }),
       });
-  
+      console.log('arey idhi final debug ra chusko kanipistundha?',response);
       if (response.ok) {
         console.log('Topic added successfully!');
         setSuccessT(`${newTopic} added successfully to ${selectedUnit}`);
@@ -464,20 +464,20 @@ useEffect(() => {
 
 
 return (
-  <div className="h-825 relative flex flex-col flex-wrap gap-4 ml-8">
-    <div className="absolute top-0 right-0 mt-4 mr-8">
-      <button onClick={handleGrantAccess} className="p-2 bg-blue-500 text-white rounded">
+  <div className="max-w-screen-xl mx-auto h-825 relative flex flex-col flex-wrap gap-4 ml-8">
+    <div className="md:absolute md:top-0 md:right-0 mt-4 md:mr-8">
+      <button onClick={handleGrantAccess} className="p-2 md:p-3 lg:p-4 bg-blue-500 text-white rounded">
         Grant Access
       </button>
-      <button onClick={handleDenyAccess} className="ml-2 p-2 bg-red-500 text-white rounded">
+      <button onClick={handleDenyAccess} className="ml-2 p-2 md:p-3 lg:p-4 bg-red-500 text-white rounded">
         Deny Access
       </button>
-      {accessStatus && <p className="mt-2 text-gray-900 ">{accessStatus}</p>}
+      {accessStatus && <p className="mt-2 text-gray-900 md:mt-0 md:ml-2">{accessStatus}</p>}
     </div>
     <div className="mb-4">
       <h2 className="text-lg font-semibold">Select Class:</h2>
       <p className="mb-2">Selected Class: {std}</p>
-      <select className="mr-2 p-2 border border-gray-300 rounded" onChange={(e) => setStd(e.target.value)} value={std}>
+      <select className="w-full md:w-1/2 lg:w-1/4 p-2 md:p-3 lg:p-4 border border-gray-300 rounded" onChange={(e) => setStd(e.target.value)} value={std}>
         <option value="">Select Class</option>
         {[...Array(10)].map((_, index) => (
           <option key={index} value={index + 1}>
@@ -489,10 +489,10 @@ return (
 
     {std && (
       <>
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold">Select or Add Subject:</h2>
-          <p className="mb-2">Selected Subject: {selectedSubject}</p>
-          <select className="mr-2 p-2 border border-gray-300 rounded" onChange={(e) => setSelectedSubject(e.target.value)}>
+        <div className="mb-[10px] md:mb-4 lg:mb-4">
+          <h2 className="text-lg font-semibold mb-[10px] md:mb-2 lg:mb-2">Select or Add Subject:</h2>
+          <p className="mb-[10px] md:mb-2 lg:mb-2">Selected Subject: {selectedSubject}</p>
+          <select className="mr-2 p-2 border border-gray-300 rounded mb-[10px] md:mb-2 lg:mb-2" onChange={(e) => setSelectedSubject(e.target.value)}>
             <option value="">Select Subject</option>
             {subjectNames.map((subject, index) => (
               <option key={index} value={subject}>
@@ -505,7 +505,7 @@ return (
             value={newSubject}
             onChange={(e) => setNewSubject(e.target.value)}
             placeholder="New Subject"
-            className="mr-2 p-2 border border-gray-300 rounded"
+            className="mr-2 p-2 border border-gray-300 rounded mb-[10px] md:mb-2 lg:mb-2"
           />
           <button
             onClick={() => {
@@ -520,10 +520,10 @@ return (
           {successS && <p className="text-green-500">{successS}</p>}
         </div>
 
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold">Select or Add Unit:</h2>
-          <p className="mb-2">Selected Unit: {selectedUnit}</p>
-          <select className="mr-2 p-2 border border-gray-300 rounded" onChange={(e) => setSelectedUnit(e.target.value)}>
+        <div className="mb-[10px] md:mb-4 lg:mb-4">
+          <h2 className="text-lg font-semibold mb-[10px] md:mb-2 lg:mb-2">Select or Add Unit:</h2>
+          <p className="mb-[10px] md:mb-2 lg:mb-2">Selected Unit: {selectedUnit}</p>
+          <select className="mr-2 p-2 border border-gray-300 rounded mb-[10px] md:mb-2 lg:mb-2" onChange={(e) => setSelectedUnit(e.target.value)}>
             <option value="">Select Unit</option>
             {unitNames.map((unit, index) => (
               <option key={index} value={unit}>
@@ -536,7 +536,7 @@ return (
             value={newUnit}
             onChange={(e) => setNewUnit(e.target.value)}
             placeholder="New Unit"
-            className="mr-2 p-2 border border-gray-300 rounded"
+            className="mr-2 p-2 border border-gray-300 rounded mb-[10px] md:mb-2 lg:mb-2"
           />
           
           <button
@@ -545,17 +545,17 @@ return (
               setAdd(true);
               setAddClicked(true);
             }}
-            className="p-2 bg-blue-500 text-white rounded"
+            className="p-2 bg-blue-500 text-white rounded mb-[10px] md:mb-2 lg:mb-2"
           >
             Add Unit
           </button>
           {successU && <p className="text-green-500">{successU}</p>}
         </div>
 
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold">Select or Add Topic:</h2>
-          <p className="mb-2">Selected Topic: {selectedTopic}</p>
-          <select className="mr-2 p-2 border border-gray-300 rounded" onChange={(e) => setSelectedTopic(e.target.value)}>
+        <div className="mb-[10px] md:mb-4 lg:mb-4">
+          <h2 className="text-lg font-semibold mb-[10px] md:mb-2 lg:mb-2">Select or Add Topic:</h2>
+          <p className="mb-[10px] md:mb-2 lg:mb-2">Selected Topic: {selectedTopic}</p>
+          <select className="mr-2 p-2 border border-gray-300 rounded mb-[10px] md:mb-2 lg:mb-2" onChange={(e) => setSelectedTopic(e.target.value)}>
             <option value="">Select Topic</option>
             {topicNames.map((topic, index) => (
               <option key={index} value={topic}>
@@ -568,7 +568,7 @@ return (
             value={newTopic}
             onChange={(e) => setNewTopic(e.target.value)}
             placeholder="New Topic"
-            className="mr-2 p-2 border border-gray-300 rounded"
+            className="mr-2 p-2 border border-gray-300 rounded mb-[10px] md:mb-2 lg:mb-2"
           />
           <button
             onClick={() => {
@@ -576,21 +576,21 @@ return (
               setAdd(true);
               setAddClicked(true);
             }}
-            className="p-2 bg-blue-500 text-white rounded"
+            className="p-2 bg-blue-500 text-white rounded mb-[10px] md:mb-2 lg:mb-2"
           >
             Add Topic
           </button>
           {successT && <p className="text-green-500">{successT}</p>}
         </div>
 
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold">Add Topic Description:</h2>
+        <div className="mb-[10px] md:mb-4 lg:mb-4">
+          <h2 className="text-lg font-semibold mb-[10px] md:mb-2 lg:mb-2">Add Topic Description:</h2>
           <input
             type="text"
             value={topicDescription}
             onChange={(e) => setTopicDescription(e.target.value)}
             placeholder="Topic Description"
-            className="mr-2 p-2 border border-gray-300 rounded"
+            className="mr-2 p-2 border border-gray-300 rounded mb-[10px] md:mb-2 lg:mb-2"
           />
           <button
             onClick={() => {
@@ -598,17 +598,17 @@ return (
               setAdd(true);
               setFinalTopicDescription(topicDescription);
             }}
-            className="p-2 bg-blue-500 text-white rounded"
+            className="p-2 bg-blue-500 text-white rounded mb-[10px] md:mb-2 lg:mb-2"
           >
             Add Topic Description
           </button>
-          {successD && <p className="text-green-500">{successD}</p>}
+          {successD && <p className="text-green-500 ">{successD}</p>}
         </div>
 
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold">Upload PDF Document:</h2>
-          <input type="file" onChange={handleFileChange} className="mr-2" />
-          <button onClick={handleFileUpload} className="p-2 bg-blue-500 text-white rounded">
+        <div className="mb-[10px] md:mb-4 lg:mb-4">
+          <h2 className="text-lg font-semibold mb-[10px] md:mb-2 lg:mb-2">Upload PDF Document:</h2>
+          <input type="file" onChange={handleFileChange} className="mr-2 mb-[10px] md:mb-2 lg:mb-2" />
+          <button onClick={handleFileUpload} className="p-2 bg-blue-500 text-white rounded mb-[10px] md:mb-2 lg:mb-2">
             Upload PDF
           </button>
           {successUpload && <p className="text-green-500">{successUpload}</p>}
