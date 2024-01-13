@@ -514,35 +514,68 @@ app.get('/api/get-units', async (req, res) => {
 
 app.get('/api/get-topics', async (req, res) => {
   try {
-    const { std, subject, unit } = req.query;
-    console.log(std, subject, unit);
-    const result = await SubjectModel.findOne({ std, 'name.subject_name': subject, 'units.unit_name': unit });
-    console.log(result)
-    if (result) {
-      const topics = result.units.find((u) => u.unit_name === unit).topics.map((topic) => topic.topic_name);
-      res.json({ topics });
-    } else {
-      res.status(404).json({ error: 'Unit not found' });
+    const std = parseInt(req.query.std);
+    const subjectName = req.query.subjectName;
+    const unitName = req.query.unitName;
+
+    const subject = await SubjectModel.findOne({ std, 'name.subject_name': subjectName });
+
+    if (!subject) {
+      return res.status(404).json({ message: 'Subject not found' });
     }
+
+    const unit = subject.name.find((s) => s.subject_name === subjectName)?.units.find((u) => u.unit_name === unitName);
+
+    if (!unit) {
+      return res.status(404).json({ message: 'Unit not found' });
+    }
+
+    const topics = unit.topics;
+
+    topics.forEach((topic) => {
+      console.log(`Topic Name: ${topic.topic_name}, Topic Description: ${topic.topic_description}`);
+    });
+
+    res.status(200).json({ topics });
   } catch (error) {
-    console.error('Error fetching topics:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
 //********************************************************************************************************************************************************
 
 
-app.get('/checking', async (req, res)=> {
-  const result = await SubjectModel.findOne({ std: 1, 'name.subject_name': 'subject1'});
-  console.log(result);
+app.get('/checking', async (req, res) => {
+  try {
+    const std = parseInt(req.query.std);
+    const subjectName = req.query.subjectName;
+    const unitName = req.query.unitName;
+
+    const subject = await SubjectModel.findOne({ std, 'name.subject_name': subjectName });
+
+    if (!subject) {
+      return res.status(404).json({ message: 'Subject not found' });
+    }
+
+    const unit = subject.name.find((s) => s.subject_name === subjectName)?.units.find((u) => u.unit_name === unitName);
+
+    if (!unit) {
+      return res.status(404).json({ message: 'Unit not found' });
+    }
+
+    const topics = unit.topics;
+
+    topics.forEach((topic) => {
+      console.log(`Topic Name: ${topic.topic_name}, Topic Description: ${topic.topic_description}`);
+    });
+
+    res.status(200).json({ topics });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
-
-
-
-
-
-
 
 
 

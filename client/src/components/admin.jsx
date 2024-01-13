@@ -4,8 +4,8 @@ import axios from 'axios';
 
 const Content = () => {
   const navigate = useNavigate();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [username, setUsername] = useState("");
+  //const [isAdmin, setIsAdmin] = useState(false);
+  //const [username, setUsername] = useState("");
   const [std, setStd] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
   const [newSubject, setNewSubject] = useState("");
@@ -26,6 +26,8 @@ const Content = () => {
   const [successD, setSuccessD] = useState('');
   const [successUpload, setSuccessUpload] = useState('');
   const [accessStatus, setAccessStatus] = useState(null);
+  const [addClicked, setAddClicked] = useState(false);
+
 
   useEffect(() => {
     const checkTokenAndFetchAccess = async () => {
@@ -48,8 +50,9 @@ const Content = () => {
   
         if (response.ok) {
           const data = await response.json();
-          setIsAdmin(data.access);
-          setUsername(data.studentName);
+          console.log('debugging number 01',data)
+          //setIsAdmin(data.access);
+          //setUsername(data.studentName);
           setStd(data.std);
   
           // Check if the user is not an admin and redirect
@@ -407,7 +410,7 @@ const handleDenyAccess = async () => {
   }
 };
 
-
+//fetch units when subject is selected
 useEffect(() => {
   // Make API request for unit names
   fetch(`http://localhost:5000/api/get-units?std=${std}&subject_name=${selectedSubject}`)
@@ -422,26 +425,41 @@ useEffect(() => {
       const { unitNames } = data;
       console.log('Unit Names:', unitNames);
       setUnitNames(unitNames);
+      setAddClicked(false);
     })
     .catch((error) => console.error('Error fetching unit names:', error));
-}, [selectedSubject]);
+    
+}, [selectedSubject, addClicked]);
 
-useEffect(() =>{
-  fetch(`http://localhost:5000/api/get-topics?std=${std}&subject=${selectedSubject}&unit=${selectedUnit}`)
-  .then((response) => {
-    if(!response.ok) {
-      throw new Error (`Network response was not ok: ${response.statusText}`);
+
+
+// fetching the topics when selected a unit
+useEffect(() => {
+  const fetchTopics = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/get-topics?std=${std}&subjectName=${selectedSubject}&unitName=${selectedUnit}`);
+      
+      if (!response.ok) {
+        throw new Error(`Network response was not ok: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const { topics } = data;
+
+      // Extract topic names from the response and set the state
+      const extractedTopicNames = topics.map((topic) => topic.topic_name);
+      console.log('topic names:',extractedTopicNames);
+      setTopicNames(extractedTopicNames);
+      setAddClicked(false);
+    } catch (error) {
+      console.error('Error fetching topic names:', error);
     }
-    return response.json();
-  })
-  .then((data) => {
-    const {topicNames} = data;
-    console.log('Topic Names:', topicNames);
-    setTopicNames(topicNames);
-  })
-  .catch((error) => console.error('Error fetching topic names:', error));
+  };
 
-},[selectedUnit])
+  // Fetch topics when selectedUnit changes
+  fetchTopics();
+}, [selectedUnit, addClicked]);
+
 
 
 
@@ -493,6 +511,7 @@ return (
             onClick={() => {
               handleAddSubject();
               setAdd(true);
+              
             }}
             className="p-2 bg-blue-500 text-white rounded"
           >
@@ -519,10 +538,12 @@ return (
             placeholder="New Unit"
             className="mr-2 p-2 border border-gray-300 rounded"
           />
+          
           <button
             onClick={() => {
               handleAddUnit();
               setAdd(true);
+              setAddClicked(true);
             }}
             className="p-2 bg-blue-500 text-white rounded"
           >
@@ -553,6 +574,7 @@ return (
             onClick={() => {
               handleAddTopic();
               setAdd(true);
+              setAddClicked(true);
             }}
             className="p-2 bg-blue-500 text-white rounded"
           >
