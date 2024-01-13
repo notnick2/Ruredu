@@ -477,7 +477,7 @@ return (
     <div className="mb-4">
       <h2 className="text-lg font-semibold">Select Class:</h2>
       <p className="mb-2">Selected Class: {std}</p>
-      <select className="w-full md:w-1/2 lg:w-1/4 p-2 md:p-3 lg:p-4 border border-gray-300 rounded" onChange={(e) => setStd(e.target.value)} value={std}>
+      <select className=" p-2 border border-gray-300 rounded" onChange={(e) => setStd(e.target.value)} value={std}>
         <option value="">Select Class</option>
         {[...Array(10)].map((_, index) => (
           <option key={index} value={index + 1}>

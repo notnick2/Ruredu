@@ -6,6 +6,8 @@ import axios from 'axios';
 const Tasks = () => {
     const [incompleteTasks, setIncompleteTasks] = useState([]);
     const [completeTasks, setCompleteTasks] = useState([]);
+    const [result, setResult] = useState(null);
+    
 
     useEffect(() => {
         const fetchIncompleteTasks = async () => {
@@ -40,19 +42,32 @@ const Tasks = () => {
         fetchCompleteTasks();
     }, []); // Fetch data when component mounts
 
+// fetch subject and unit data of specific topic selected
+
+const searchTopic = async (topicName) => {
+    try {
+      const response = await axios.post('http://localhost:5000/searchTopic', { topicName });
+      setResult(response.data);
+      const data = response.data;
+      const subjectName = data.subjectName;
+      const unitName = data.unitName;
+      window.location.href = `/dashboard/content/${subjectName}/${unitName}`
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
     return (
+        
+
         <div className="flex flex-col gap-4 max-h-100">
             <div>
                 <h2 className="text-lg font-bold  m-6">Incomplete Tasks</h2>
                 <div className="flex flex-col-reverse gap-3 overflow-y-auto max-h-[300px] ml-10 mr-40 pr-4 ">
                     {incompleteTasks && incompleteTasks.map((task, index) => (
-                        <a
-                            key={index}
-                            href={`#${task}`} // Replace with the link you want
-                            className="border border-blue-500 p-2 rounded-md hover:bg-blue-50"
-                        >
+                        <button onClick={() => {searchTopic(task)}} onclick className="border border-blue-500 shadow-md p-2 rounded-md hover:bg-blue-50">
                             {task}
-                        </a>
+                        </button>
                     ))}
                 </div>
             </div>
@@ -60,17 +75,16 @@ const Tasks = () => {
                 <h2 className="text-lg font-bold m-6">Completed Tasks</h2>
                 <div className="flex flex-col-reverse gap-3 overflow-y-auto max-h-[300px] ml-10 mr-40 pr-4">
                     {completeTasks && completeTasks.map((task, index) => (
-                        <a
-                            key={index}
-                            href={`#${task}`} // Replace with the link you want
-                            className="border border-blue-500 p-2 rounded-md hover:bg-blue-50"
-                        >
+                        
+                        <button onClick={() => {searchTopic(task)}} onclick className="border border-blue-500 p-2 shadow-md rounded-md hover:bg-blue-50">
                             {task}
-                        </a>
+                        </button>
+                        
                     ))}
                 </div>
             </div>
         </div>
+        
     );
 };
 

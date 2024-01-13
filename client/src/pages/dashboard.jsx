@@ -74,7 +74,11 @@ const Dashboard = () => {
         location.pathname === '/dashboard/home' ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
       }`}
     >
-      <img src={home} className="w-9 h-9 sm:w-8 sm:h-8 sm:mt-0 mt-[200px]" alt="home Icon" />
+      <img src={home} className={`sm:w-8 sm:h-8 sm:mt-0 mt-[200px]
+      ${
+        location.pathname === '/dashboard/home' ? 'w-12 h-12 ' : 'w-9 h-9'
+      }`
+    }alt="home Icon" />
       {/* Use the image directly for small devices */}
       <span className="hidden sm:inline">Home</span>
     </Link>
@@ -86,7 +90,10 @@ const Dashboard = () => {
         location.pathname === '/dashboard/content' || location.pathname.startsWith('/dashboard/content/') ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
       }`}
     >
-      <img src={content} className="w-9 h-9 sm:w-8 sm:h-8" alt="Tasks Icon" />
+      <img src={content} className={`sm:w-8 sm:h-8
+       ${
+        location.pathname === '/dashboard/content' ? 'w-12 h-12 ' : 'w-9 h-9'
+      }`} alt="Tasks Icon" />
       {/* Use the image directly for small devices */}
       <span className="hidden sm:inline">Content</span>
     </Link>
@@ -98,7 +105,10 @@ const Dashboard = () => {
         location.pathname === '/dashboard/tasks' ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
       }`}
     >
-      <img src={tasks} className="w-9 h-9 sm:w-8 sm:h-8" alt="Tasks Icon" />
+      <img src={tasks} className={` sm:w-8 sm:h-8
+       ${
+        location.pathname === '/dashboard/tasks' ? 'w-12 h-12 ' : 'w-9 h-9'
+      }`} alt="Tasks Icon" />
       {/* Use the image directly for small devices */}
       <span className="hidden sm:inline">Tasks</span>
     </Link>
@@ -110,7 +120,10 @@ const Dashboard = () => {
         location.pathname === '/dashboard/profile' ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
       }`}
     >
-      <img src={profile} className="w-9 h-9 sm:w-8 sm:h-8" alt="Profile Icon" />
+      <img src={profile} className={`sm:w-8 sm:h-8
+       ${
+        location.pathname === '/dashboard/profile' ? 'w-12 h-12 ' : 'w-9 h-9'
+      }`} alt="Profile Icon" />
       {/* Use the image directly for small devices */}
       <span className="hidden sm:inline">Profile</span>
     </Link>
@@ -123,7 +136,10 @@ const Dashboard = () => {
           location.pathname === '/dashboard/admin' ? 'text-blue-500 font-bold' : 'text-gray-600 hover:text-blue-500 hover:font-bold'
         }`}
       >
-        <img src={admin} className="w-9 h-9 sm:w-8 sm:h-8" alt="Profile Icon" />
+        <img src={admin} className={`sm:w-8 sm:h-8
+         ${
+          location.pathname === '/dashboard/admin' ? 'w-12 h-12 ' : 'w-9 h-9'
+        }`} alt="Profile Icon" />
         {/* Use the image directly for small devices */}
         <span className="hidden sm:inline">Admin</span>
       </Link>
@@ -141,7 +157,10 @@ const Dashboard = () => {
     >
       <img
         src={logout}
-        className="w-10 h-10 sm:w-8 sm:h-8 mt-5 sm:mt-0  mr-[11px] ml-[2px] sm:mr-0"
+        className={` sm:w-8 sm:h-8 mt-5 sm:mt-0  mr-[11px] ml-[2px] sm:mr-0
+        ${
+          location.pathname === '/dashboard/logout' ? 'w-12 h-12 ' : 'w-9 h-9'
+        }`}
         alt="Logout Icon"
       />      {/* Use the image directly for small devices */}
       <span className="hidden sm:inline">Logout</span>

@@ -686,6 +686,36 @@ app.post('/api/mark-topic-completed', verifyToken, async (req, res) => {
 
 
 
+// get subject and unit data from the given topic 
+
+app.post('/searchTopic', async (req, res) => {
+  try {
+    const topicName = req.body.topicName; // Assuming the frontend sends the topicName in the request body
+
+    // Search for the topic in the SubjectModel
+    const result = await SubjectModel.findOne({
+      'name.units.topics.topic_name': topicName,
+    });
+
+    if (!result) {
+      return res.status(404).json({ error: 'Topic not found' });
+    }
+
+    // Extract relevant information and send it to the frontend
+    const subjectName = result.name.find(subject => subject.units.some(unit => unit.topics.some(topic => topic.topic_name === topicName))).subject_name;
+    const unitName = result.name.find(subject => subject.units.some(unit => unit.topics.some(topic => topic.topic_name === topicName))).units.find(unit => unit.topics.some(topic => topic.topic_name === topicName)).unit_name;
+
+    res.status(200).json({
+      subjectName,
+      unitName,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

@@ -97,7 +97,7 @@ const Content = () => {
         {subjectNames.map((subject, index) => (
           <div
             key={index}
-            className={`bg-white p-4 rounded cursor-pointer shadow-md ${
+            className={`bg-white  p-4 rounded-md cursor-pointer shadow-md ${
               isExpanded && selectedSubject === subject ? 'flex-grow expanded shadow-lg' : 'flex-grow-0'
             }`}
             onClick={() => handleSubjectClick(subject)}
