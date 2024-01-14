@@ -11,13 +11,13 @@ An open-source platform to share PDF notes for educational institutions because 
 Clone the project
 
 ```bash
-  git clone https://github.com/your-username/RUREDU.git
+  git clone https://github.com/your-username/Ruredu.git
 ```
 
 Go to the project directory
 
 ```bash
-  cd RUREDU
+  cd Ruredu
 ```
 
 Install dependencies
