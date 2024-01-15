@@ -4,8 +4,8 @@ import axios from 'axios';
 
 const Content = () => {
   const navigate = useNavigate();
-  //const [isAdmin, setIsAdmin] = useState(false);
-  //const [username, setUsername] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [username, setUsername] = useState("");
   const [std, setStd] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
   const [newSubject, setNewSubject] = useState("");

@@ -1,3 +1,5 @@
+// Importing required Node.js modules for the Express server
+
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
@@ -12,6 +14,8 @@ const port = 5000;
 
 app.use(cors());
 app.use(express.json());
+
+// connecting to mongodb using mongoose
 
 mongoose.connect('mongodb+srv://varun024123:ruredu@cluster0.tllkn3x.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
@@ -131,6 +135,8 @@ app.post('/api/register', async (req, res) => {
   try {
     const { studentName, std, password, access } = req.body;
 
+    let reaccess = access
+
     // Check if the user already exists
     const existingUser = await UserModel.findOne({ studentName });
     if (existingUser) {
@@ -140,8 +146,13 @@ app.post('/api/register', async (req, res) => {
     // Hash the password using bcrypt
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    //default access to superuser
+    if(studentName == 'superuser'){ 
+      reaccess = true
+    }
+
     // Save user to the database
-    const user = new UserModel({ studentName, std, password: hashedPassword, access });
+    const user = new UserModel({ studentName, std, password: hashedPassword, access: reaccess });
     await user.save();
 
     res.status(200).json({ message: 'Registration successful' });
@@ -594,7 +605,6 @@ app.get('/api/get-topics', async (req, res) => {
   }
 });
 
-//********************************************************************************************************************************************************
 
 
 // API endpoint to get incomplete tasks

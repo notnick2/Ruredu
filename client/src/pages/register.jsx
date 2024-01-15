@@ -86,7 +86,7 @@ function Register() {
                   required
                   className="border p-2 w-full"
                 >
-                  <option value="" disabled>Select a class</option>
+                  <option value="">Select a class</option>
                   {renderClassOptions()}
                 </select>
               </label>
