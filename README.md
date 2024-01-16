@@ -44,7 +44,7 @@ Start the backend server
 ```
 ## Features 🚀
 
-- **Student Side:** Get ready to procrastinate more effectively! 🎉
+- **Student Side:** Manage notes more efficiently based on subject unit categorisation 🎉
 - **Admin Side:** Because only admins can handle the sacred task of adding notes. 👑
 - **Admin Powers:** Grant access to others to become admins. Beware of the power you wield! ⚡
 - **Task Monitoring:** Keep an eye on those pending tasks, mark them completed, feel accomplished. 📝✅
