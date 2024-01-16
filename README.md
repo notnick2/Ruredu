@@ -1,9 +1,7 @@
 
 # RUREDU
 
-The "I Have No Idea What I'm Doing" Educational Platform 📚🤷‍♂️
-
-An open-source platform to share PDF notes for educational institutions because sharing is caring! 😄
+An open-source platform to share PDF notes for educational institutions because sharing is caring! 
 
 
 ## Run Locally
