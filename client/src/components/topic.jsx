@@ -159,6 +159,7 @@ const Topic = () => {
           )}
         </div>
         <div className="m-6 mt-10">
+
         {isTopicCompleted ? (
           <button className="bg-green-500 text-xl text-white py-2 px-4 rounded-md mt-4">
             {topicName} Completed
@@ -176,7 +177,7 @@ const Topic = () => {
       <div className="flex-grow mt-5">
         {pdfPath && (
           <div className="rounded-lg md:mt-0 sm:ml-0 ml-6 mr-6 sm:mr-12 overflow-hidden">
-            <iframe src={`http://localhost:3000/${pdfPath}`} width="100%" height="800px" title="PDF Viewer" className="border border-blue-500"></iframe>
+            <iframe src={`http://localhost:5000/${pdfPath}`} width="100%" height="800px" title="PDF Viewer" className="border border-blue-500"></iframe>
           </div>
         )}
 
