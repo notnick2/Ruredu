@@ -1,7 +1,22 @@
 
+
 # RUREDU
 
-An open-source platform to share PDF notes for educational institutions because sharing is caring! 
+An open-source Notes Sharing Platform for Educational Institutions
+
+# DESCRIPTION 
+Ruredu is a web-based platform designed for educational institutions to streamline the sharing of PDF notes. It provides a structured organization of PDF notes based on subjects, units, and topics. Additionally, Ruredu offers task tracking features to monitor completed and incomplete tasks for better academic management.
+
+
+
+## Built with
+
+- Frontend: React
+- Backend: Node.js, Express
+- Database: MongoDB
+- Styling: Tailwind CSS
+- File Upload: Multer
+- File Rendering: iframe
 
 
 ## Run Locally
@@ -18,14 +33,19 @@ Go to the project directory
   cd Ruredu
 ```
 
-Install dependencies
+Install dependencies for frontend
 
 ```bash
   cd client
   npm install
-  cd ..
+
+```
+Install dependencies for backend
+
+```bash
   cd server
   npm install
+
 ```
 
 Start the frontend server
@@ -40,7 +60,6 @@ Start the backend server
 ```bash
   cd server
   nodemon index.js
-  nodemon server.js
 ```
 ## Features 🚀
 
