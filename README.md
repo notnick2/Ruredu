@@ -47,6 +47,10 @@ Install dependencies for backend
   npm install
 
 ```
+Connect MongoDB 
+```bash
+  mongoose.connect('YOUR_MONGODB_CONNECTION_URL')
+```
 
 Start the frontend server
 
