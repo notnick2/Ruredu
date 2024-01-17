@@ -17,7 +17,7 @@ app.use(express.json());
 
 // connecting to mongodb using mongoose
 
-mongoose.connect('mongodb+srv://varun024123:ruredu@cluster0.tllkn3x.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('MONGODB_CONNECTION_URL', { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 if (db) {
   console.log('Connected to MongoDB');
