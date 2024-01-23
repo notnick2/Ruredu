@@ -76,8 +76,6 @@ const Content = () => {
     fetchSubjects();
   }, [navigate]);
 
-
-
   useEffect(() => {
     // Log state values after they are updated
     console.log('Subject Names:', subjectNames);
