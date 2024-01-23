@@ -92,12 +92,12 @@ const Content = () => {
     <>
     <div className="container mx-auto mt-8">
       <h1 className="text-3xl font-bold mb-4">Subjects</h1>
-      <div className="flex flex-col max-w-[400px] overflow-y-auto max-h-[700px] pr-4 gap-4"
+      <div className="flex flex-col max-w-[400px] overflow-y-auto max-h-[700px] pr-4 gap-4 md:p-8 p-4"
       >
         {subjectNames.map((subject, index) => (
           <div
             key={index}
-            className={`bg-white  p-4 rounded-md cursor-pointer shadow-md ${
+            className={`bg-white p-8 border-x-slate-600 rounded-md cursor-pointer shadow-md ${
               isExpanded && selectedSubject === subject ? 'flex-grow expanded shadow-lg' : 'flex-grow-0'
             }`}
             onClick={() => handleSubjectClick(subject)}

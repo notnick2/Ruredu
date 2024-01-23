@@ -306,7 +306,7 @@ const handleFileUpload = async () => {
   try {
     await axios.post('http://localhost:5000/api/upload', formData);
     console.log('File uploaded successfully');
-    setSuccessUpload('File uploaded successfully');
+    setSuccessUpload("File uploaded successfully");
   } catch (error) {
     console.error('Error uploading file:', error);
   }

@@ -16,8 +16,8 @@ app.use(cors());
 app.use(express.json());
 
 // connecting to mongodb using mongoose
-
-mongoose.connect('MONGODB_CONNECTION_URL', { useNewUrlParser: true, useUnifiedTopology: true });
+const uri = "mongodb+srv://varun024123:ruredu@cluster0.tllkn3x.mongodb.net/?retryWrites=true&w=majority";
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 if (db) {
   console.log('Connected to MongoDB');
@@ -730,4 +730,5 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+
 });
