@@ -300,6 +300,11 @@ const handleFileUpload = async () => {
   formData.append('std', std);
   formData.append('Subject', selectedSubject);
   formData.append('Unit', selectedUnit);
+  console.log(selectedTopic)
+  if(!selectedTopic){
+    setSuccessUpload('please select topic');
+    return 0
+  }
   formData.append('Topic', selectedTopic);
   formData.append('topic_description', topicDescription);
   console.log(formData);

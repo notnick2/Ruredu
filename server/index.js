@@ -1,5 +1,5 @@
 // Importing required Node.js modules for the Express server
-
+require('dotenv').config()
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
@@ -16,18 +16,17 @@ app.use(cors());
 app.use(express.json());
 
 // connecting to mongodb using mongoose
-
-mongoose.connect('MONGODB_CONNECTION_URL', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.dburi);
 const db = mongoose.connection;
 if (db) {
-  console.log('Connected to MongoDB');
+  console.log('Database is ready');
 }
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 // User Model
 const UserSchema = new mongoose.Schema({
   studentName: String,
-  std: { type: Number, required: true },
+  std: { type: Number, required: true }||'1',
   password: String,
   access: Boolean,
   incomplete: [{ type: String }],
@@ -95,7 +94,7 @@ const fileSchema = new mongoose.Schema({
 const File = mongoose.model('File', fileSchema);
 
 // Secret key for JWT
-const secretKey = 'hackingmeisimpossible'; // Replace with a strong, secret key
+const secretKey = process.env.secretKey //'hackingmeisimpossible'; // Replace with a strong, secret key
 
 
 // Middleware to verify JWT tokens
@@ -422,6 +421,11 @@ app.post('/api/upload', upload.single('pdf'), (req, res) => {
     console.log(Unit)
     console.log(Topic)
     console.log(topic_description)
+    if(!Topic){
+      return res.status(500).json({error:true,type:"please define topic"})
+    }else{
+      //pass
+    }
     // Save the file details to your database
     // Assuming you have a File model for storing file information
     const newFile = new File({
@@ -435,7 +439,7 @@ app.post('/api/upload', upload.single('pdf'), (req, res) => {
 
     newFile.save();
 
-    res.json({ message: 'File uploaded successfully' });
+    res.json({error:false,message: 'File uploaded successfully' });
   } catch (error) {
     console.error('Error handling file upload:', error);
     res.status(500).json({ error: 'Internal Server Error' });
