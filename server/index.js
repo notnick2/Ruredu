@@ -250,7 +250,6 @@ app.get('/api/get-topics/:subject/:unit', verifyToken, async (req, res) => {
   }
 });
 
-
 //getting details for a specified class to add by the admin
 
 app.get('/api/get-class-details', verifyToken, async (req, res) => {
