@@ -7,6 +7,7 @@ An open-source Notes Sharing Platform for Educational Institutions
 # DESCRIPTION 
 Ruredu is a web-based platform designed for educational institutions to streamline the sharing of PDF notes. It provides a structured organization of PDF notes based on subjects, units, and topics. Additionally, Ruredu offers task tracking features to monitor completed and incomplete tasks for better academic management.
 
+(https://postimg.cc/Jyk7BdK9)
 
 
 ## Built with
